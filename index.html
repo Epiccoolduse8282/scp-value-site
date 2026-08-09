@@ -193,6 +193,34 @@ body::after{opacity:.55}
   .hero-stats{grid-template-columns:1fr 1fr}
 }
 
+
+/* Smooth missing-image state */
+.media-shell{position:relative;isolation:isolate}
+.blank-photo{
+  position:absolute;inset:0;overflow:hidden;border-radius:inherit;
+  background:
+    radial-gradient(circle at 38% 30%,rgba(124,140,255,.12),transparent 38%),
+    linear-gradient(145deg,#151d28,#0b1017 72%);
+}
+.blank-photo::before{
+  content:"";position:absolute;inset:-45%;
+  background:linear-gradient(105deg,transparent 38%,rgba(255,255,255,.045) 49%,rgba(124,140,255,.06) 52%,transparent 64%);
+  transform:translateX(-45%) rotate(4deg);
+  animation:blankSweep 3.4s ease-in-out infinite;
+}
+.blank-photo i{position:absolute;border-radius:999px;background:rgba(117,132,157,.10)}
+.blank-photo i:nth-child(1){width:34%;height:5%;left:33%;top:39%}
+.blank-photo i:nth-child(2){width:22%;height:4%;left:39%;top:49%;opacity:.7}
+.blank-photo i:nth-child(3){width:10%;aspect-ratio:1;left:45%;top:23%;opacity:.8}
+.media-shell>img{position:relative;z-index:2;background:transparent}
+.media-shell>img.bad{display:none}
+.image-missing .blank-photo{opacity:1}
+@keyframes blankSweep{
+  0%,20%{transform:translateX(-48%) rotate(4deg)}
+  65%,100%{transform:translateX(48%) rotate(4deg)}
+}
+@media(prefers-reduced-motion:reduce){.blank-photo::before{animation:none}}
+
 </style>
 </head>
 <body>
@@ -382,6 +410,21 @@ const DISPLAY_FILTERS=[
 // dedicated pages > exact Bundles subsection/type > Accessories fallback.
 const FORCE_MORPH_NAMES=new Set(['goc morph','gru p morph','tsh morph','tau 5 morph']);
 const ROBUX_IMAGE_RE=/\/robux(?:\.png)?(?:\/|\?|$)|4\/41\/robux\.png/i;
+
+// User-confirmed tradable skins that may exist in the live value sheet before
+// the Fandom Weapon Skins page has a matching row/image.
+const SHEET_ONLY_WEAPON_SKINS=new Set(['red raid']);
+
+const CATEGORY_ALIASES=[
+  [/\b(accessor(?:y|ies))\b/i,'Accessories'],
+  [/\b(weapon skins?|gun skins?|skins?)\b/i,'Weapon Skins'],
+  [/\bmorphs?\b/i,'Morphs'],
+  [/\bc4(?: effects?)?\b/i,'C4 Effects'],
+  [/\bkill effects?\b/i,'Kill Effects'],
+  [/\b(?:scp\s*)?173(?: cages?)?\b|\bcage skins?\b/i,'173 Cages'],
+  [/\b(?:scp\s*)?096(?: bags?)?\b|\bbag skins?\b/i,'096 Bags'],
+  [/\bscp crates?\b|\bcrate skins?\b/i,'SCP Crates']
+];
 const DEMAND_TEXT_MULTIPLIERS=[
   [/\b(terrible|dead|very low|none)\b/i,.75],
   [/\b(low|poor|bad)\b/i,.85],
@@ -393,7 +436,7 @@ const DEMAND_TEXT_MULTIPLIERS=[
   [/\b(excellent|extreme|insane)\b/i,1.30]
 ];
 
-let wikiCatalog=[],catalog=[],sheetMap=new Map(),sheetInfo={loaded:false,valueHeader:'Value',demandHeader:'Demand',loadedAt:0},offerA=[],offerB=[],activeSide='a',activeFilter='All',activeSort='default',dragPayload=null,customSheetData=false;
+let wikiCatalog=[],sheetExtras=[],catalog=[],sheetMap=new Map(),sheetInfo={loaded:false,valueHeader:'Value',demandHeader:'Demand',loadedAt:0,entries:[]},offerA=[],offerB=[],activeSide='a',activeFilter='All',activeSort='default',dragPayload=null,customSheetData=false;
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 const text=e=>String(e?.textContent||'').replace(/\[[^\]]*\]/g,' ').replace(/\s+/g,' ').trim();
@@ -505,9 +548,39 @@ function inferType(group,heading=''){
          group==='Weapon Skins'?'Weapon Skin':
          group==='Morphs'?'Morph':'Bundle Item';
 }
+
+function normalizeCategory(raw,name=''){
+  const source=cleanName(raw);
+  for(const [re,category] of CATEGORY_ALIASES){
+    if(re.test(source))return category;
+  }
+  const n=key(name);
+  if(SHEET_ONLY_WEAPON_SKINS.has(n)||/\braid\b/.test(n))return 'Weapon Skins';
+  if(/\bmorph\b/.test(n))return 'Morphs';
+  if(/\bcage\b/.test(n))return '173 Cages';
+  if(/\bbag\b/.test(n))return '096 Bags';
+  if(/\bcrate\b/.test(n))return 'SCP Crates';
+  return '';
+}
+function typeForCategory(category){
+  return ({
+    'Accessories':'Accessory',
+    'Weapon Skins':'Weapon Skin',
+    'Morphs':'Morph',
+    'C4 Effects':'C4 Effect',
+    'Kill Effects':'Kill Effect',
+    '173 Cages':'173 Cage',
+    '096 Bags':'096 Bag',
+    'SCP Crates':'SCP Crate'
+  })[category]||'';
+}
+
 function categoryFor(item){
   const n=key(item?.name);
   if(FORCE_MORPH_NAMES.has(n))return 'Morphs';
+
+  const sheetCategory=normalizeCategory(item?.sheetCategory||item?.categoryRaw||'',item?.name);
+  if(sheetCategory)return sheetCategory;
 
   // A merged item may have been discovered multiple times. Use ALL observations.
   const sources=[...(item?.sources||[]),item?.group].filter(Boolean).map(key);
@@ -698,7 +771,7 @@ function mergeCatalog(items){
     if(raw.section&&(!cur.section||/Bundles?/i.test(cur.section)))cur.section=raw.section;
     if(rawDedicated&&!curDedicated)cur.group=raw.group;
   }
-  return [...map.values()].sort((a,b)=>a.name.localeCompare(b.name));
+  return [...map.values()];
 }
 function parseCSV(textValue){let out=[],row=[],cell='',q=false;for(let i=0;i<textValue.length;i++){const c=textValue[i],n=textValue[i+1];if(c==='"'){if(q&&n==='"'){cell+='"';i++}else q=!q}else if(c===','&&!q){row.push(cell);cell=''}else if((c==='\n'||c==='\r')&&!q){if(c==='\r'&&n==='\n')i++;row.push(cell);if(row.some(v=>v.trim()))out.push(row);row=[];cell=''}else cell+=c}row.push(cell);if(row.some(v=>v.trim()))out.push(row);return out}
 function demandInfo(rawValue){
@@ -741,25 +814,86 @@ function bestColumn(headers,patterns,exclude=new Set()){
 }
 function buildSheetMap(csvText){
   const data=parseCSV(csvText);if(data.length<2)throw Error('No sheet rows');
-  let headerRow=0,best=-1;data.slice(0,20).forEach((r,i)=>{const s=headerScore(r);if(s>best){best=s;headerRow=i}});
+  let headerRow=0,best=-1;
+  data.slice(0,30).forEach((r,i)=>{const s=headerScore(r);if(s>best){best=s;headerRow=i}});
   const headers=data[headerRow].map((h,i)=>String(h||'').trim()||`Column ${i+1}`);
   const body=data.slice(headerRow+1).map(r=>headers.map((_,i)=>r[i]??''));
-  let nameI=bestColumn(headers,[[/^(item name|name|cosmetic name|skin name|accessory name|morph name|bundle name)$/,120],[/\b(item|cosmetic|skin|accessory|morph|bundle).*\bname\b/,110],[/^item$/,100],[/^name$/,95]]);
+
+  let nameI=bestColumn(headers,[
+    [/^(item name|name|cosmetic name|skin name|accessory name|morph name|bundle name)$/,120],
+    [/\b(item|cosmetic|skin|accessory|morph|bundle).*\bname\b/,110],
+    [/^item$/,100],[/^name$/,95]
+  ]);
   if(nameI<0)nameI=0;
-  const demandI=bestColumn(headers,[[/^demand$/,140],[/\bdemand\b/,130],[/\b(popularity|wanted|desirability|interest)\b/,100]],new Set([nameI]));
-  let valueI=bestColumn(headers,[[/^(value|trade value|worth)$/,150],[/\b(value|worth)\b/,130],[/^rap$/,120],[/\b(price)\b/,80]],new Set([nameI,demandI]));
+
+  const demandI=bestColumn(headers,[
+    [/^demand$/,140],[/\bdemand\b/,130],[/\b(popularity|wanted|desirability|interest)\b/,100]
+  ],new Set([nameI]));
+
+  const categoryI=bestColumn(headers,[
+    [/^(category|item category|type|item type|section|group)$/,150],
+    [/\b(category|type|section|group)\b/,115]
+  ],new Set([nameI,demandI]));
+
+  let valueI=bestColumn(headers,[
+    [/^(value|trade value|worth)$/,150],[/\b(value|worth)\b/,130],[/^rap$/,120],[/\b(price)\b/,80]
+  ],new Set([nameI,demandI,categoryI]));
+
   if(valueI<0){
-    let numBest=-1,numScore=-1;headers.forEach((h,i)=>{if(i===nameI||i===demandI)return;const nums=body.slice(0,100).filter(r=>numberFrom(r[i])!==0).length;if(nums>numScore){numScore=nums;numBest=i}});valueI=numBest;
+    let numBest=-1,numScore=-1;
+    headers.forEach((h,i)=>{
+      if(i===nameI||i===demandI||i===categoryI)return;
+      const nums=body.slice(0,120).filter(r=>numberFrom(r[i])!==0).length;
+      if(nums>numScore){numScore=nums;numBest=i}
+    });
+    valueI=numBest;
   }
   if(valueI<0)throw Error('No value column found');
-  const m=new Map();
+
+  const m=new Map(),entries=[];
+  let currentCategory='';
+  let order=0;
+
   for(const r of body){
+    const nonEmpty=r.map((v,i)=>({i,v:cleanName(v)})).filter(x=>x.v);
+
+    // Support section-heading rows in the sheet, e.g. a row containing only
+    // "Weapon Skins" followed by the item rows beneath it.
+    if(nonEmpty.length<=2){
+      const possible=normalizeCategory(nonEmpty.map(x=>x.v).join(' '));
+      const hasNumeric=nonEmpty.some(x=>numberFrom(x.v)!==0);
+      if(possible&&!hasNumeric){currentCategory=possible;continue}
+    }
+
     const name=cleanName(r[nameI]);if(isJunkName(name))continue;
-    const value=numberFrom(r[valueI]);const demand=demandInfo(demandI>=0?r[demandI]:'');
-    const entry={name,value,demandRaw:demand.raw,demandLabel:demand.label,demandMultiplier:demand.multiplier,adjustedValue:value*demand.multiplier};
-    m.set(key(name),entry);const lk=looseKey(name);if(lk)m.set(lk,entry);
+    const value=numberFrom(r[valueI]);
+    const demand=demandInfo(demandI>=0?r[demandI]:'');
+    const explicitCategory=categoryI>=0?cleanName(r[categoryI]):'';
+    const categoryRaw=normalizeCategory(explicitCategory,name)||currentCategory||normalizeCategory('',name);
+
+    const entry={
+      name,value,
+      demandRaw:demand.raw,demandLabel:demand.label,demandMultiplier:demand.multiplier,
+      adjustedValue:value*demand.multiplier,
+      categoryRaw,order:order++
+    };
+    entries.push(entry);
+    m.set(key(name),entry);
+    const lk=looseKey(name);if(lk)m.set(lk,entry);
   }
-  return{map:m,info:{loaded:true,valueHeader:headers[valueI]||'Value',demandHeader:demandI>=0?(headers[demandI]||'Demand'):'Demand',loadedAt:Date.now(),demandFound:demandI>=0}};
+
+  return{
+    map:m,
+    info:{
+      loaded:true,
+      valueHeader:headers[valueI]||'Value',
+      demandHeader:demandI>=0?(headers[demandI]||'Demand'):'Demand',
+      loadedAt:Date.now(),
+      demandFound:demandI>=0,
+      categoryHeader:categoryI>=0?(headers[categoryI]||'Category'):'',
+      entries
+    }
+  };
 }
 async function fetchPublishedSheet(){
   let lastError=null;
@@ -788,19 +922,69 @@ async function loadSheetData({quiet=false,allowLocalFallback=true}={}){
   }
 }
 function attachSheetData(){
+  const matchedEntries=new Set();
+
   wikiCatalog.forEach(item=>{
     const data=sheetMap.get(key(item.name))??sheetMap.get(looseKey(item.name));
     item.tradable=!!data;
-    item.value=data?.value||0;item.demandRaw=data?.demandRaw||'';item.demandLabel=data?.demandLabel||'No demand';
-    item.demandMultiplier=Number(data?.demandMultiplier)||1;item.adjustedValue=item.value*item.demandMultiplier;
+    item.value=data?.value||0;
+    item.demandRaw=data?.demandRaw||'';
+    item.demandLabel=data?.demandLabel||'No demand';
+    item.demandMultiplier=Number(data?.demandMultiplier)||1;
+    item.adjustedValue=item.value*item.demandMultiplier;
+    item.sheetCategory=data?.categoryRaw||'';
+    item.sheetOrder=Number.isFinite(data?.order)?data.order:Number.MAX_SAFE_INTEGER;
+    if(data)matchedEntries.add(data);
     item.category=categoryFor(item);
   });
+
+  // The sheet is authoritative for tradable/value-list membership.
+  // If the sheet contains an item the wiki parser doesn't know yet, keep it.
+  // It will render with a smooth blank image placeholder until the wiki adds art.
+  sheetExtras=(sheetInfo.entries||[]).filter(entry=>!matchedEntries.has(entry)).map(entry=>{
+    const category=normalizeCategory(entry.categoryRaw,entry.name);
+    return{
+      name:entry.name,
+      image:'',
+      group:category||'Sheet',
+      sources:['Google Sheet'],
+      section:category||'Live Value List',
+      sections:[category||'Live Value List'],
+      type:typeForCategory(category)||'Sheet Item',
+      types:[typeForCategory(category)||'Sheet Item'],
+      details:'Live value-list item',
+      tradable:true,
+      value:entry.value||0,
+      demandRaw:entry.demandRaw||'',
+      demandLabel:entry.demandLabel||'No demand',
+      demandMultiplier:Number(entry.demandMultiplier)||1,
+      adjustedValue:(entry.value||0)*(Number(entry.demandMultiplier)||1),
+      sheetCategory:category,
+      sheetOrder:Number.isFinite(entry.order)?entry.order:Number.MAX_SAFE_INTEGER,
+      category
+    };
+  }).filter(item=>DISPLAY_FILTERS.includes(item.category));
+
   applyCatalogRules();
 }
 function applyCatalogRules(){
-  // The published trade-value sheet is the tradability gate.
-  // If the item is not represented there, do not show it as tradeable.
-  catalog=wikiCatalog.filter(item=>item.tradable && !isBundleContainer(item) && DISPLAY_FILTERS.includes(item.category));
+  const candidates=[
+    ...wikiCatalog.filter(item=>item.tradable && !isBundleContainer(item)),
+    ...sheetExtras
+  ];
+
+  // De-duplicate once more after adding sheet-only items.
+  const seen=new Set();
+  catalog=candidates.filter(item=>{
+    if(!DISPLAY_FILTERS.includes(item.category))return false;
+    const k=key(item.name);if(seen.has(k))return false;
+    seen.add(k);return true;
+  });
+
+  // "Normal order" follows the published sheet whenever that item has a sheet row.
+  // Wiki-only ordering remains stable for anything without a sheet order.
+  catalog.sort((a,b)=>(a.sheetOrder??Number.MAX_SAFE_INTEGER)-(b.sheetOrder??Number.MAX_SAFE_INTEGER));
+
   if(!DISPLAY_FILTERS.includes(activeFilter))activeFilter='All';
 }
 async function load(){
@@ -812,7 +996,7 @@ async function load(){
   const withImages=catalog.filter(x=>x.image).length;const valued=catalog.filter(x=>valueFor(x)>0).length;const demanded=catalog.filter(x=>x.demandRaw).length;const note=failed.length?` · ${failed.join(', ')} failed`:'';
   {
       const catCounts=DISPLAY_FILTERS.slice(1).map(cat=>`${cat}: ${catalog.filter(x=>x.category===cat).length}`).join(' · ');
-      status(`${catalog.length} tradable cosmetics ready${note}`,failed.length?'err':'ok');
+      status(`${catalog.length} tradable cosmetics ready${sheetExtras.length?` · ${sheetExtras.length} sheet-only`:''}${note}`,failed.length?'err':'ok');
       console.info('[SCP:RP catalog]',catCounts);
       updateStats();
     }
@@ -824,10 +1008,16 @@ function groupsFor(item){return[item.category||categoryFor(item)]}
 function renderFilters(){
   $('#filters').innerHTML=DISPLAY_FILTERS.map(name=>{const count=name==='All'?catalog.length:catalog.filter(x=>x.category===name).length;return `<button class="filter ${activeFilter===name?'active':''}" data-filter="${esc(name)}">${esc(name)} <span>${count}</span></button>`}).join('');
 }
-function thumbHTML(item,small=false){const cls=small?'offer-thumb':'thumb';return `<div class="${cls}">${item.image?`<img src="${esc(item.image)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.classList.add('bad');this.parentElement.dataset.empty='1'">`:'No photo'}</div>`}
+function thumbHTML(item,small=false){
+  const cls=small?'offer-thumb':'thumb';
+  return `<div class="${cls} media-shell">
+    <div class="blank-photo" aria-hidden="true"><i></i><i></i><i></i></div>
+    ${item.image?`<img src="${esc(item.image)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.classList.add('bad');this.parentElement.classList.add('image-missing')">`:''}
+  </div>`;
+}
 function renderItems(){
   const q=key($('#search').value);
-  let filtered=catalog.filter(item=>(activeFilter==='All'||item.category===activeFilter)&&(!q||key([item.name,item.type,item.section,item.category,item.details,item.demandLabel,...groupsFor(item)].join(' ')).includes(q)));
+  let filtered=catalog.filter(item=>(activeFilter==='All'||item.category===activeFilter)&&(!q||key([item.name,item.type,item.section,item.category,item.details,item.demandLabel,...(item.sources||[]),...groupsFor(item)].join(' ')).includes(q)));
   if(activeSort!=='default'){
     filtered=[...filtered].sort((a,b)=>{
       if(activeSort==='value')return adjustedFor(b)-adjustedFor(a)||a.name.localeCompare(b.name);
