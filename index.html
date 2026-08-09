@@ -3,114 +3,255 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080b10">
 <title>SCP:RP Trade Calculator</title>
 <style>
+
 :root{
-  --bg:#0f1115;--panel:#171a20;--panel2:#1d2129;--line:#2b313c;--text:#f4f6f8;--muted:#98a2b3;
-  --blue:#6c7cff;--blue2:#5365f5;--green:#39c978;--red:#ff6b72;--amber:#f7c65f;--shadow:0 12px 36px rgba(0,0,0,.2)
+  --bg:#080b10;--bg2:#0c1118;--panel:#10161f;--panel2:#151d28;--panel3:#0c121a;
+  --line:#263141;--line2:#344257;--text:#f7f9fc;--muted:#91a0b4;--muted2:#66758a;
+  --blue:#7c8cff;--blue2:#596cf6;--green:#47d18c;--green2:#279b63;--red:#ff7279;
+  --amber:#f5c869;--cyan:#6bd7e8;--shadow:0 18px 55px rgba(0,0,0,.30);
+  --soft-shadow:0 8px 24px rgba(0,0,0,.18);--radius:18px;--radius-sm:12px;
 }
 *{box-sizing:border-box}
-html{color-scheme:dark}
-body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14px}
-button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
-.app{width:min(1440px,100%);margin:auto;padding:18px}
-.credit-strip{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:#13161c;color:var(--muted);font-size:11px;line-height:1.45}.credit-strip strong{color:#e7eaf0}.credit-strip a{color:#aeb8ff;text-decoration:none;font-weight:800}.credit-strip a:hover{text-decoration:underline}.credit-main{min-width:0}.credit-badge{flex:0 0 auto;padding:4px 8px;border:1px solid #343c49;border-radius:999px;background:#1b2028;color:#cbd2dc;font-size:10px;font-weight:800;white-space:nowrap}
-.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px}
-.brand h1{font-size:20px;line-height:1.15;margin:0}.brand p{margin:5px 0 0;color:var(--muted);font-size:12px}
-.top-actions{display:flex;align-items:center;gap:8px}.status{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:0 11px;border:1px solid var(--line);border-radius:9px;background:var(--panel);color:var(--muted);white-space:nowrap}.status::before{content:"";width:7px;height:7px;border-radius:50%;background:#758095}.status.ok::before{background:var(--green)}.status.err::before{background:var(--red)}.status.loading::before{background:var(--amber)}
-.btn{height:36px;border:1px solid var(--line);border-radius:9px;background:var(--panel2);color:var(--text);padding:0 12px;font-weight:700}.btn:hover{border-color:#3b4452;background:#222731}.btn.primary{background:var(--blue2);border-color:transparent}.btn.danger{color:#ff9ba0}.file{display:none}
-.toolbar{display:grid;grid-template-columns:minmax(240px,1fr) auto auto;gap:10px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--panel);box-shadow:var(--shadow);position:sticky;top:8px;z-index:20;margin-bottom:12px}
-.search-wrap{position:relative}.search{width:100%;height:40px;border:1px solid var(--line);border-radius:9px;background:#11141a;color:var(--text);padding:0 12px 0 38px;outline:none}.search:focus{border-color:var(--blue)}.search-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#788394;pointer-events:none}
-.target-switch{display:flex;padding:3px;border:1px solid var(--line);border-radius:10px;background:#11141a}.target-btn{height:32px;border:0;border-radius:7px;background:transparent;color:var(--muted);padding:0 13px;font-weight:800}.target-btn.active{background:var(--blue2);color:white}.target-btn.active[data-side="b"]{background:#248b55}
-.view-actions{display:flex;gap:7px}
-.layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(390px,.75fr);gap:12px;align-items:start}.panel{border:1px solid var(--line);border-radius:12px;background:var(--panel);overflow:hidden}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:46px;padding:0 14px;border-bottom:1px solid var(--line)}.panel-head h2{margin:0;font-size:13px;text-transform:uppercase;letter-spacing:.08em}.panel-head small{color:var(--muted)}
-.filters{display:flex;gap:7px;overflow:auto;padding:10px 12px;border-bottom:1px solid var(--line);scrollbar-width:none}.filters::-webkit-scrollbar{display:none}.filter{height:32px;border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--muted);padding:0 11px;font-weight:700;white-space:nowrap}.filter.active{background:#2a3040;border-color:#46516a;color:#fff}.filter span{opacity:.7;font-weight:600;margin-left:4px}
-.catalog-meta{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 13px;color:var(--muted);font-size:12px;border-bottom:1px solid var(--line)}.active-dest{font-weight:800}.active-dest.a{color:#9ca7ff}.active-dest.b{color:#72dc9e}
-.items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:8px;max-height:calc(100vh - 206px);overflow:auto;align-content:start}.item-card{display:grid;grid-template-columns:62px minmax(0,1fr) auto;gap:10px;align-items:center;min-height:76px;padding:7px;border:1px solid var(--line);border-radius:10px;background:#14171d;cursor:grab;transition:border-color .15s,transform .15s,background .15s}.item-card:hover{border-color:#424c5b;background:#181c23;transform:translateY(-1px)}.item-card.dragging{opacity:.45}.thumb{width:62px;height:62px;border-radius:8px;border:1px solid #2c3340;background:#0d0f13;display:grid;place-items:center;overflow:hidden;color:#667085;font-size:10px;text-align:center}.thumb img{display:block;width:100%;height:100%;object-fit:contain}.thumb img.bad{display:none}.item-copy{min-width:0}.item-name{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.item-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}.tag{font-size:10px;line-height:19px;height:19px;padding:0 7px;border-radius:999px;background:#222834;color:#aeb8c7;white-space:nowrap}.item-value{margin-top:6px;color:var(--amber);font-size:12px;font-weight:900}.item-value.none{color:#6f7a89;font-weight:600}.item-stats{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px;font-size:10px;color:var(--muted)}.item-stats b{color:#d4d9e1}.demand-pill{display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border:1px solid #343c49;border-radius:999px;background:#1c212a;color:#bec7d4}.demand-pill.good{color:#7fe0a7;border-color:#2d6849}.demand-pill.bad{color:#ff9ba0;border-color:#71363a}.add-btn{width:34px;height:34px;border:0;border-radius:9px;background:var(--blue2);color:white;font-size:20px;font-weight:900;line-height:1}.add-btn.b{background:#248b55}.empty{grid-column:1/-1;padding:44px 18px;text-align:center;color:var(--muted)}
-.side{display:grid;gap:12px;position:sticky;top:74px}.offers-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px}.offer{border:1px solid var(--line);border-radius:10px;background:#14171d;overflow:hidden}.offer.active.a{outline:2px solid var(--blue2);outline-offset:-1px}.offer.active.b{outline:2px solid #248b55;outline-offset:-1px}.offer-head{display:flex;align-items:center;justify-content:space-between;gap:7px;height:40px;padding:0 9px;border-bottom:1px solid var(--line)}.offer-name{font-weight:900}.offer.a .offer-name{color:#aab2ff}.offer.b .offer-name{color:#75dda0}.mini-btn{border:0;background:transparent;color:var(--muted);font-size:11px;font-weight:700}.mini-btn:hover{color:white}.offer-list{min-height:160px;max-height:315px;overflow:auto;padding:6px;display:grid;align-content:start;gap:5px;border:2px solid transparent}.offer-list.drag-over{border-color:var(--amber)}.offer-row{display:grid;grid-template-columns:36px minmax(0,1fr) 44px 22px;gap:6px;align-items:center;padding:5px;border:1px solid var(--line);border-radius:8px;background:#1b1f27}.offer-thumb{width:36px;height:36px;border-radius:6px;overflow:hidden;background:#0d0f13;border:1px solid var(--line);display:grid;place-items:center;color:#667085;font-size:9px}.offer-thumb img{width:100%;height:100%;object-fit:contain}.offer-thumb img.bad{display:none}.offer-row-name{min-width:0;font-size:11px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.offer-row small{display:block;color:var(--amber);font-size:10px;margin-top:2px}.qty{width:44px;height:28px;border:1px solid var(--line);border-radius:7px;background:#101319;color:white;padding:3px 5px}.remove{border:0;background:transparent;color:#ff7e84;font-size:18px;padding:0}.offer-empty{text-align:center;color:var(--muted);padding:32px 5px;font-size:11px}.offer-total{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;padding:9px;border-top:1px solid var(--line);color:var(--muted)}.offer-total-copy{display:grid;gap:1px}.offer-total-copy span{font-size:11px}.offer-total-copy small{font-size:9px;color:#727d8d}.offer-total strong{font-size:15px;color:var(--amber)}
-.compare{padding:13px}.verdict{font-size:15px;font-weight:900}.difference{margin-top:4px;color:var(--muted);font-size:12px}.compare-sub{margin-top:4px;color:#778294;font-size:10px}.formula-note{margin-top:10px;padding:8px 9px;border:1px solid var(--line);border-radius:8px;background:#12151b;color:#8f9aaa;font-size:10px;line-height:1.45}.formula-note b{color:#cfd5de}.bar{display:flex;height:8px;margin-top:10px;border-radius:999px;overflow:hidden;background:#0f1217}.bar-a{background:var(--blue2)}.bar-b{background:#248b55}.compare-actions{display:flex;gap:7px;margin-top:11px}.compare-actions .btn{flex:1}
-details.tools{border-top:1px solid var(--line)}details.tools summary{cursor:pointer;list-style:none;padding:12px 14px;font-weight:800;color:#c4cad4}details.tools summary::-webkit-details-marker{display:none}.tools-body{padding:0 12px 12px}.trade-input{width:100%;min-height:76px;resize:vertical;border:1px solid var(--line);border-radius:9px;background:#101319;color:var(--text);padding:9px;outline:none}.trade-input:focus{border-color:var(--blue)}.tool-actions{display:flex;gap:7px;margin-top:7px}.tool-actions .btn{flex:1}.report{margin-top:7px;color:var(--muted);font-size:11px;line-height:1.4}.source-note{padding:9px 12px;border-top:1px solid var(--line);color:#768294;font-size:10px;line-height:1.4}
-@media(max-width:1120px){.layout{grid-template-columns:1fr}.side{position:static}.items{max-height:62vh}}
-@media(max-width:760px){.app{padding:8px}.credit-strip{align-items:flex-start;flex-direction:column}.credit-badge{align-self:flex-start}.topbar{align-items:flex-start;flex-direction:column}.top-actions{width:100%;flex-wrap:wrap}.toolbar{position:static;grid-template-columns:1fr}.target-switch{width:100%}.target-btn{flex:1}.view-actions{width:100%}.view-actions .btn,.view-actions label{flex:1}.items{grid-template-columns:1fr;max-height:none}.offers-grid{grid-template-columns:1fr}.catalog-meta{align-items:flex-start;flex-direction:column}.panel-head{padding:0 11px}}
+html{color-scheme:dark;scroll-behavior:smooth}
+body{
+  margin:0;color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:14px;background:
+    radial-gradient(900px 480px at 8% -10%,rgba(89,108,246,.15),transparent 60%),
+    radial-gradient(700px 420px at 100% 15%,rgba(71,209,140,.07),transparent 60%),
+    linear-gradient(180deg,var(--bg2),var(--bg));min-height:100vh;
+}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.16;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:28px 28px;mask-image:linear-gradient(to bottom,#000,transparent 70%)}
+button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:none!important}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid #95a1ff;outline-offset:2px}
+.app{width:min(1540px,100%);margin:auto;padding:22px;position:relative;z-index:1}
+.credit-strip{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;padding:8px 11px;border:1px solid rgba(124,140,255,.15);border-radius:12px;background:rgba(12,17,24,.72);backdrop-filter:blur(12px);color:#7f8da1;font-size:10.5px;line-height:1.45}
+.credit-strip strong{color:#bfc8d6}.credit-strip a{color:#aeb7ff;text-decoration:none;font-weight:800}.credit-strip a:hover{text-decoration:underline}.credit-main{min-width:0}.credit-badge{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border:1px solid #283548;border-radius:999px;background:#101722;color:#9fb0c6;font-size:9px;font-weight:900;letter-spacing:.04em;text-transform:uppercase}.credit-badge::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px rgba(71,209,140,.10)}
+.hero{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:22px;align-items:end;margin:4px 0 18px;padding:4px 2px}
+.brand-kicker{display:inline-flex;align-items:center;gap:7px;color:#aab4c6;font-size:10px;font-weight:900;letter-spacing:.13em;text-transform:uppercase}.brand-kicker::before{content:"";width:18px;height:2px;border-radius:9px;background:linear-gradient(90deg,var(--blue),var(--cyan))}
+.brand h1{margin:8px 0 0;font-size:clamp(27px,4vw,43px);line-height:1;letter-spacing:-.04em}.brand h1 span{color:#95a3ff}.brand p{margin:9px 0 0;color:var(--muted);font-size:13px;max-width:700px;line-height:1.55}
+.hero-stats{display:flex;gap:8px;align-items:stretch}.hero-stat{min-width:90px;padding:10px 12px;border:1px solid var(--line);border-radius:13px;background:rgba(16,22,31,.72);box-shadow:var(--soft-shadow)}.hero-stat b{display:block;font-size:15px;line-height:1.1;font-variant-numeric:tabular-nums}.hero-stat span{display:block;margin-top:5px;color:var(--muted2);font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.07em}
+.toolbar{display:grid;grid-template-columns:minmax(260px,1fr) auto auto auto;gap:8px;align-items:center;padding:8px;border:1px solid var(--line);border-radius:16px;background:rgba(16,22,31,.92);box-shadow:var(--shadow);backdrop-filter:blur(16px);position:sticky;top:10px;z-index:30;margin-bottom:12px}
+.search-wrap{position:relative}.search{width:100%;height:42px;border:1px solid transparent;border-radius:11px;background:#090e15;color:var(--text);padding:0 42px 0 39px;outline:none;transition:.18s}.search:hover{border-color:#253247}.search:focus{border-color:#6578ff;box-shadow:0 0 0 3px rgba(89,108,246,.13)}.search-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#66758a;pointer-events:none;font-size:16px}.search-key{position:absolute;right:11px;top:50%;transform:translateY(-50%);height:20px;min-width:20px;display:grid;place-items:center;border:1px solid #2c3748;border-radius:6px;color:#65758c;font-size:10px;background:#111823}.clear-search{position:absolute;right:9px;top:50%;transform:translateY(-50%) scale(.8);width:26px;height:26px;border:0;border-radius:7px;background:#1d2735;color:#a9b4c5;opacity:0;pointer-events:none;transition:.15s}.clear-search.visible{opacity:1;pointer-events:auto;transform:translateY(-50%) scale(1)}.clear-search.visible~.search-key{display:none}
+.target-switch{display:flex;padding:3px;border:1px solid var(--line);border-radius:11px;background:#090e15}.target-btn{height:34px;border:0;border-radius:8px;background:transparent;color:#7e8ba0;padding:0 13px;font-size:11px;font-weight:900;transition:.15s}.target-btn.active{background:linear-gradient(180deg,#6d7eff,#5364eb);color:white;box-shadow:0 5px 15px rgba(89,108,246,.22)}.target-btn.active[data-side="b"]{background:linear-gradient(180deg,#39bd7a,#238f5b);box-shadow:0 5px 15px rgba(39,155,99,.20)}
+.sort-select{height:40px;border:1px solid var(--line);border-radius:10px;background:#0c121a;color:#c8d0db;padding:0 32px 0 10px;font-size:11px;font-weight:800;outline:none}.sort-select:hover{border-color:var(--line2)}
+.top-actions{display:flex;align-items:center;gap:7px}.status{display:inline-flex;align-items:center;gap:7px;height:40px;padding:0 11px;border:1px solid var(--line);border-radius:10px;background:#0c121a;color:#8796aa;font-size:10.5px;font-weight:800;white-space:nowrap}.status::before{content:"";width:7px;height:7px;border-radius:50%;background:#718097}.status.ok::before{background:var(--green);box-shadow:0 0 0 3px rgba(71,209,140,.1)}.status.err::before{background:var(--red)}.status.loading::before{background:var(--amber);animation:pulse 1.2s infinite}
+.btn{height:40px;border:1px solid var(--line);border-radius:10px;background:#151d28;color:#e8edf4;padding:0 12px;font-size:11px;font-weight:850;transition:.15s}.btn:hover{border-color:#3a4960;background:#1a2431;transform:translateY(-1px)}.btn.primary{background:linear-gradient(180deg,#6d7eff,#5364eb);border-color:transparent;color:#fff}.btn.ghost{background:#0c121a}.btn.danger{color:#ff9da2}.file{display:none}
+.layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(430px,.78fr);gap:12px;align-items:start}
+.panel{border:1px solid var(--line);border-radius:var(--radius);background:rgba(16,22,31,.94);overflow:hidden;box-shadow:var(--soft-shadow);backdrop-filter:blur(10px)}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:50px;padding:0 15px;border-bottom:1px solid var(--line)}.panel-title{display:flex;align-items:center;gap:9px}.panel-icon{width:26px;height:26px;border:1px solid #2b3748;border-radius:8px;background:#0b1118;display:grid;place-items:center;color:#97a5ba;font-size:12px}.panel-head h2{margin:0;font-size:12px;text-transform:uppercase;letter-spacing:.10em}.panel-head small{color:#66758a;font-size:10px;font-weight:700}
+.filters{display:flex;gap:7px;overflow:auto;padding:10px 12px;border-bottom:1px solid var(--line);scrollbar-width:none}.filters::-webkit-scrollbar{display:none}.filter{height:31px;border:1px solid transparent;border-radius:999px;background:#0c121a;color:#7f8da1;padding:0 11px;font-size:10.5px;font-weight:850;white-space:nowrap;transition:.15s}.filter:hover{color:#d7dde6;background:#141c27}.filter.active{background:#1e2940;border-color:#3b4d70;color:#f5f7ff;box-shadow:inset 0 0 0 1px rgba(124,140,255,.08)}.filter span{opacity:.62;font-weight:700;margin-left:4px}
+.catalog-meta{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 13px;color:#718098;font-size:10.5px;border-bottom:1px solid var(--line);background:#0d131c}.active-dest{display:inline-flex;align-items:center;gap:6px;font-weight:900;letter-spacing:.02em}.active-dest::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}.active-dest.a{color:#a4aeff}.active-dest.b{color:#72dda4}
+.items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:8px;max-height:calc(100vh - 216px);overflow:auto;align-content:start;scrollbar-color:#273449 transparent}
+.item-card{display:grid;grid-template-columns:70px minmax(0,1fr) 36px;gap:10px;align-items:center;min-height:86px;padding:8px;border:1px solid #222d3b;border-radius:13px;background:linear-gradient(180deg,#111821,#0f151e);cursor:grab;transition:border-color .16s,transform .16s,background .16s,box-shadow .16s;position:relative;overflow:hidden}.item-card::after{content:"";position:absolute;inset:auto 0 0;height:1px;background:linear-gradient(90deg,transparent,rgba(124,140,255,.16),transparent);opacity:0;transition:.16s}.item-card:hover{border-color:#3b4b62;background:#141c27;transform:translateY(-1px);box-shadow:0 10px 24px rgba(0,0,0,.16)}.item-card:hover::after{opacity:1}.item-card.dragging{opacity:.42;transform:scale(.99)}
+.thumb{width:70px;height:70px;border-radius:10px;border:1px solid #293548;background:radial-gradient(circle at 50% 35%,#182130,#090d13 75%);display:grid;place-items:center;overflow:hidden;color:#59677b;font-size:9px;text-align:center}.thumb img{display:block;width:100%;height:100%;object-fit:contain;transition:transform .18s}.item-card:hover .thumb img{transform:scale(1.045)}.thumb img.bad{display:none}.item-copy{min-width:0}.item-topline{display:flex;align-items:center;justify-content:space-between;gap:6px}.item-name{min-width:0;font-size:12.5px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#f3f6fb}.tag{flex:0 0 auto;font-size:8px;line-height:17px;height:17px;padding:0 6px;border-radius:999px;background:#1b2431;color:#75859a;white-space:nowrap;font-weight:800}.item-value{margin-top:6px;color:#ffd778;font-size:15px;font-weight:950;letter-spacing:-.02em;font-variant-numeric:tabular-nums}.item-value span{font-size:8px;color:#897d5d;font-weight:800;letter-spacing:.03em;text-transform:uppercase}.item-value.none{color:#67758a;font-size:11px;font-weight:750}.item-stats{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin-top:5px;font-size:9px;color:#65748a}.item-stats b{color:#aeb9c8}.base-stat{white-space:nowrap}.demand-pill{display:inline-flex;align-items:center;gap:5px;min-width:0;color:#9dacbf}.demand-pill b{max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:850}.demand-pill em{font-style:normal;color:#6d7c90;font-variant-numeric:tabular-nums}.demand-pill.high,.demand-pill.very-high{color:#66dfa0}.demand-pill.low,.demand-pill.very-low{color:#ff989d}.demand-bars{display:inline-flex;align-items:flex-end;gap:1px;height:10px}.demand-bars i{width:2px;border-radius:2px;background:#2c3747}.demand-bars i:nth-child(1){height:3px}.demand-bars i:nth-child(2){height:5px}.demand-bars i:nth-child(3){height:7px}.demand-bars i:nth-child(4){height:9px}.demand-bars i:nth-child(5){height:10px}.demand-pill .demand-bars i.on{background:currentColor}
+.add-btn{width:34px;height:34px;border:0;border-radius:10px;background:#5365ed;color:white;font-size:20px;font-weight:850;line-height:1;box-shadow:0 7px 16px rgba(89,108,246,.20);transition:.15s}.add-btn:hover{transform:scale(1.06);background:#6879ff}.add-btn:active{transform:scale(.96)}.add-btn.b{background:#278f5d;box-shadow:0 7px 16px rgba(39,155,99,.18)}.add-btn.b:hover{background:#32a96d}
+.empty{grid-column:1/-1;min-height:260px;padding:50px 18px;text-align:center;color:#6f7d91;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px}.empty b{color:#c4ccd8}.empty span{font-size:11px}.empty-icon{width:42px;height:42px;border:1px solid #2b3748;border-radius:13px;background:#0b1118;display:grid;place-items:center;font-size:18px}
+.side{display:grid;gap:12px;position:sticky;top:72px}.offers-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px}.offer{border:1px solid #253142;border-radius:13px;background:#0d131c;overflow:hidden;transition:.16s}.offer.active.a{border-color:#5e6ff0;box-shadow:0 0 0 2px rgba(89,108,246,.13)}.offer.active.b{border-color:#329b67;box-shadow:0 0 0 2px rgba(39,155,99,.13)}.offer-head{display:flex;align-items:center;justify-content:space-between;gap:7px;height:42px;padding:0 9px;border-bottom:1px solid #222d3b}.offer-name-wrap{display:grid;gap:1px}.offer-name{font-size:11px;font-weight:950}.offer.a .offer-name{color:#b5bcff}.offer.b .offer-name{color:#7de0a7}.offer-count{font-size:8px;color:#607087;text-transform:uppercase;letter-spacing:.05em}.mini-btn{border:0;background:transparent;color:#6f7f94;font-size:9px;font-weight:800}.mini-btn:hover{color:white}.offer-list{min-height:180px;max-height:318px;overflow:auto;padding:6px;display:grid;align-content:start;gap:5px;border:2px solid transparent;scrollbar-width:thin}.offer-list.drag-over{border-color:var(--amber);background:rgba(245,200,105,.03)}.offer-row{display:grid;grid-template-columns:38px minmax(0,1fr) 44px 20px;gap:6px;align-items:center;padding:5px;border:1px solid #263142;border-radius:9px;background:#131b26}.offer-thumb{width:38px;height:38px;border-radius:7px;overflow:hidden;background:#090d13;border:1px solid #283446;display:grid;place-items:center;color:#58667a;font-size:8px}.offer-thumb img{width:100%;height:100%;object-fit:contain}.offer-thumb img.bad{display:none}.offer-row-name{min-width:0;font-size:10px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.offer-row small{display:block;color:#c5a95f;font-size:8.5px;margin-top:2px;font-weight:700}.tiny-demand{margin-left:3px}.tiny-demand.high,.tiny-demand.very-high{color:#62d998}.tiny-demand.low,.tiny-demand.very-low{color:#f88d93}.qty{width:44px;height:29px;border:1px solid #2a3749;border-radius:7px;background:#090e15;color:white;padding:3px 5px;font-size:10px}.remove{border:0;background:transparent;color:#d76f77;font-size:17px;padding:0}.remove:hover{color:#ff8e95}.offer-empty{text-align:center;color:#6b7990;padding:34px 5px;font-size:9.5px;display:flex;flex-direction:column;align-items:center;gap:3px}.offer-empty span{width:28px;height:28px;border:1px dashed #36445a;border-radius:9px;display:grid;place-items:center;color:#7b8aa0;font-size:15px;margin-bottom:3px}.offer-empty b{color:#9aa8bb;font-size:10px}.offer-empty small{font-size:8.5px}.offer-total{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;padding:9px;border-top:1px solid #222d3b;background:#0b1118;color:#6f7d91}.offer-total-copy{display:grid;gap:1px}.offer-total-copy span{font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.06em}.offer-total-copy small{font-size:8px;color:#59687c}.offer-total strong{font-size:17px;color:#ffd675;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.compare{padding:14px}.compare-hero{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:start}.verdict{font-size:17px;font-weight:950;letter-spacing:-.02em}.difference{margin-top:4px;color:#8291a6;font-size:10.5px}.compare-sub{margin-top:3px;color:#5f6f84;font-size:9px}.score{width:58px;height:58px;border:1px solid #2c384a;border-radius:15px;background:#0b1118;display:grid;place-items:center;text-align:center}.score b{font-size:16px;font-variant-numeric:tabular-nums}.score span{font-size:7px;color:#65758b;text-transform:uppercase;letter-spacing:.08em;font-weight:900}.balance-track{position:relative;display:flex;height:10px;margin-top:13px;border-radius:999px;overflow:visible;background:#090e15;border:1px solid #263142}.bar-a{height:100%;background:linear-gradient(90deg,#5365ed,#7f8dff);border-radius:999px 0 0 999px}.bar-b{height:100%;background:linear-gradient(90deg,#2c9c65,#47d18c);border-radius:0 999px 999px 0}.bar-marker{position:absolute;top:50%;width:2px;height:18px;background:white;border-radius:3px;transform:translate(-1px,-50%);box-shadow:0 0 0 3px rgba(255,255,255,.07);transition:left .22s}.balance-mid{position:absolute;left:50%;top:-5px;bottom:-5px;width:1px;background:#4b586b;opacity:.7}.balance-legend{display:flex;justify-content:space-between;margin-top:5px;color:#5c6c82;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}.balance-hint{margin-top:11px;padding:9px 10px;border:1px solid #253244;border-radius:9px;background:#0c121a;color:#8291a7;font-size:9.5px;line-height:1.45}.compare[data-tone="balanced"] .score{border-color:#2b6d4a;background:rgba(39,155,99,.08)}.compare[data-tone="balanced"] .score b{color:#69dda0}.compare[data-tone="close"] .score b{color:#b8c1ff}.compare[data-tone="warning"] .score b{color:#f2c76e}.compare[data-tone="strong"] .score b{color:#ff8c92}
+.formula-note{margin-top:10px;padding:8px 9px;border:1px solid #222d3b;border-radius:8px;background:#0a1017;color:#647389;font-size:8.5px;line-height:1.45}.formula-note b{color:#9eabbd}.compare-actions{display:flex;gap:7px;margin-top:10px}.compare-actions .btn{flex:1}
+details.tools{border-top:1px solid var(--line)}details.tools summary{cursor:pointer;list-style:none;padding:12px 14px;font-size:10px;font-weight:900;color:#9aa8bb;display:flex;align-items:center;justify-content:space-between}details.tools summary::after{content:"＋";color:#5d6d82}details.tools[open] summary::after{content:"−"}details.tools summary::-webkit-details-marker{display:none}.tools-body{padding:0 12px 12px}.trade-input{width:100%;min-height:82px;resize:vertical;border:1px solid #273346;border-radius:10px;background:#090e15;color:var(--text);padding:10px;outline:none;font-size:10.5px;line-height:1.45}.trade-input:focus{border-color:#6274fb}.tool-actions{display:flex;gap:7px;margin-top:7px}.tool-actions .btn{flex:1}.report{margin-top:7px;color:#6f7e93;font-size:9px;line-height:1.4}.source-note{padding:10px 12px;border-top:1px solid var(--line);color:#56667c;font-size:8.5px;line-height:1.5}
+.footer-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;padding:0 3px;color:#526176;font-size:9px}.footer-meta b{color:#75859a}.footer-meta a{color:#7f8cff;text-decoration:none}
+.toast-host{position:fixed;right:18px;bottom:18px;z-index:100;display:grid;gap:7px;pointer-events:none}.toast{padding:10px 12px;border:1px solid #334257;border-radius:10px;background:#141d29;color:#dce3ec;font-size:10px;font-weight:800;box-shadow:0 16px 40px rgba(0,0,0,.35);transform:translateY(8px);opacity:0;transition:.2s}.toast.show{transform:translateY(0);opacity:1}
+@keyframes pulse{50%{opacity:.45}}
+@media(max-width:1180px){.layout{grid-template-columns:1fr}.side{position:static}.items{max-height:65vh}.hero{align-items:start}.hero-stats{flex-wrap:wrap;justify-content:flex-end}}
+@media(max-width:820px){.app{padding:10px}.credit-strip{align-items:flex-start;flex-direction:column}.credit-badge{align-self:flex-start}.hero{grid-template-columns:1fr}.hero-stats{justify-content:flex-start}.toolbar{position:static;grid-template-columns:1fr 1fr}.search-wrap{grid-column:1/-1}.top-actions{justify-content:stretch}.status{flex:1}.items{grid-template-columns:1fr;max-height:none}.offers-grid{grid-template-columns:1fr}.catalog-meta{align-items:flex-start;flex-direction:column}.panel-head{padding:0 12px}}
+@media(max-width:520px){.hero-stats{display:grid;grid-template-columns:1fr 1fr;width:100%}.hero-stat{min-width:0}.toolbar{grid-template-columns:1fr}.search-wrap{grid-column:auto}.target-switch{width:100%}.target-btn{flex:1}.sort-select{width:100%}.top-actions{width:100%}.btn{flex:1}.item-card{grid-template-columns:62px minmax(0,1fr) 34px}.thumb{width:62px;height:62px}.credit-strip{font-size:9px}.brand h1{font-size:30px}.compare-hero{grid-template-columns:1fr auto}.footer-meta{align-items:flex-start;flex-direction:column}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+
+/* cinematic ambient layer */
+#fxCanvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:.58}
+body{--mx:50vw;--my:20vh;position:relative;isolation:isolate}
+body::after{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
+  background:radial-gradient(430px circle at var(--mx) var(--my),rgba(124,140,255,.105),transparent 68%);
+  transition:opacity .25s;
+}
+.boot-overlay{
+  position:fixed;inset:0;z-index:9999;display:grid;place-items:center;overflow:hidden;
+  background:#070a0f;transition:opacity .55s ease,visibility .55s ease;
+}
+.boot-overlay.done{opacity:0;visibility:hidden}
+.boot-overlay::before{
+  content:"";position:absolute;inset:-35%;
+  background:repeating-linear-gradient(0deg,transparent 0 5px,rgba(124,140,255,.025) 6px 7px);
+  animation:bootNoise 8s linear infinite;
+}
+.boot-scan{position:absolute;left:0;right:0;height:2px;top:12%;background:linear-gradient(90deg,transparent,#7588ff,#6bd7e8,transparent);box-shadow:0 0 22px #6f82ff;animation:bootScan 1.2s cubic-bezier(.3,.7,.2,1) forwards}
+.boot-core{position:relative;width:min(410px,84vw);padding:28px;border:1px solid #2b3750;border-radius:20px;background:rgba(12,17,25,.78);box-shadow:0 30px 90px rgba(0,0,0,.48),inset 0 0 50px rgba(124,140,255,.035);backdrop-filter:blur(18px)}
+.boot-mark{width:56px;height:56px;margin-bottom:18px;border:1px solid #45577a;border-radius:16px;display:grid;place-items:center;font-size:25px;color:#aab5ff;background:linear-gradient(145deg,#192338,#0b1119);box-shadow:0 0 32px rgba(124,140,255,.12);animation:bootMark 1.7s ease-in-out infinite}
+.boot-kicker{color:#7c8cff;font-size:9px;font-weight:950;letter-spacing:.18em;text-transform:uppercase}
+.boot-title{margin-top:7px;font-size:24px;font-weight:950;letter-spacing:-.035em}
+.boot-status{margin-top:10px;color:#73849a;font-size:10px;font-weight:800}
+.boot-track{height:3px;margin-top:18px;border-radius:999px;background:#111a27;overflow:hidden}
+.boot-progress{height:100%;width:18%;background:linear-gradient(90deg,#596cf6,#6bd7e8);box-shadow:0 0 14px rgba(107,215,232,.45);animation:bootProgress 1.35s cubic-bezier(.16,.8,.2,1) forwards}
+@keyframes bootScan{from{top:8%;opacity:0}15%{opacity:1}to{top:94%;opacity:0}}
+@keyframes bootProgress{to{width:100%}}
+@keyframes bootNoise{to{transform:translateY(80px)}}
+@keyframes bootMark{50%{transform:translateY(-3px);box-shadow:0 0 42px rgba(124,140,255,.22)}}
+
+.item-card.card-enter{animation:cardEnter .5s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--stagger,0) * 18ms)}
+@keyframes cardEnter{from{opacity:0;transform:translateY(14px) scale(.982);filter:blur(3px)}to{opacity:1;transform:none;filter:none}}
+.offer.flash-add{animation:offerPulse .6s cubic-bezier(.2,.8,.2,1)}
+@keyframes offerPulse{0%{box-shadow:0 0 0 0 rgba(124,140,255,0)}35%{box-shadow:0 0 0 5px rgba(124,140,255,.13),0 0 34px rgba(124,140,255,.12)}100%{box-shadow:0 0 0 0 rgba(124,140,255,0)}}
+.fx-burst{position:fixed;z-index:10000;width:5px;height:5px;border-radius:50%;pointer-events:none;background:#aab4ff;box-shadow:0 0 10px currentColor;animation:fxBurst .7s cubic-bezier(.15,.75,.2,1) forwards}
+@keyframes fxBurst{from{opacity:1;transform:translate(-50%,-50%) rotate(var(--a)) translateX(0) scale(1)}to{opacity:0;transform:translate(-50%,-50%) rotate(var(--a)) translateX(var(--d)) scale(.15)}}
+.score b,.offer-total strong{font-variant-numeric:tabular-nums}
+.panel{transform:translateZ(0)}
+@media(prefers-reduced-motion:reduce){
+  #fxCanvas,.boot-scan,.boot-progress,.boot-mark{display:none!important}
+  .boot-overlay{display:none!important}
+  .item-card.card-enter,.offer.flash-add,.fx-burst{animation:none!important}
+}
+
 </style>
 </head>
 <body>
+<canvas id="fxCanvas" aria-hidden="true"></canvas>
+<div id="bootOverlay" class="boot-overlay" aria-hidden="true">
+  <div class="boot-scan"></div>
+  <div class="boot-core">
+    <div class="boot-mark">◈</div>
+    <div class="boot-kicker">SCP:RP Trade Intelligence</div>
+    <div class="boot-title">Calibrating market data</div>
+    <div id="bootStatus" class="boot-status">Connecting to live values…</div>
+    <div class="boot-track"><div class="boot-progress"></div></div>
+  </div>
+</div>
+
 <div class="app">
   <div class="credit-strip" role="note" aria-label="Sources and credits">
-    <div class="credit-main"><strong>Source &amp; Credits:</strong> Values and demand are automatically synced from the <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vRfOJ9P2x7g-6RgP9zyiwQJHFELV3cvuVL6alt4K8eifisCvbGNrkPfZcUHMbvhU4Gy564iQ4ckYzt8/pubhtml" target="_blank" rel="noopener noreferrer">published SCP:RP Google Sheet</a>. Cosmetic names, categories and images are sourced from the <a href="https://scproleplay.fandom.com/wiki/Accessories" target="_blank" rel="noopener noreferrer">SCP: Roleplay Wiki</a>. Credit goes to the spreadsheet maintainers and SCP:RP Wiki contributors for the underlying data and images.</div>
-    <div class="credit-badge">Live sheet data</div>
+    <div class="credit-main"><strong>Sources &amp; credits:</strong> Values and demand automatically sync from the <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vRfOJ9P2x7g-6RgP9zyiwQJHFELV3cvuVL6alt4K8eifisCvbGNrkPfZcUHMbvhU4Gy564iQ4ckYzt8/pubhtml" target="_blank" rel="noopener noreferrer">published SCP:RP Google Sheet</a>. Cosmetic names, categories and images come from the <a href="https://scproleplay.fandom.com/wiki/Accessories" target="_blank" rel="noopener noreferrer">SCP: Roleplay Wiki</a>. Credit belongs to the spreadsheet maintainers and SCP:RP Wiki contributors.</div>
+    <div class="credit-badge">Live sources</div>
   </div>
 
-  <header class="topbar">
+  <header class="hero">
     <div class="brand">
-      <h1>SCP:RP Trade Calculator</h1>
-      <p>Wiki cosmetics + live Google Sheet values and demand · demand-adjusted trade totals.</p>
+      <div class="brand-kicker">SCP: Roleplay trading</div>
+      <h1>Trade with <span>clarity.</span></h1>
+      <p>Compare tradable Accessories, Weapon Skins, Morphs, C4 Effects, Kill Effects, 173 Cages, 096 Bags and SCP Crates using live value and demand.</p>
     </div>
-    <div class="top-actions">
-      <div id="status" class="status loading">Loading wiki…</div>
-      <button id="reload" class="btn">Sync all</button>
+    <div class="hero-stats" aria-label="Data overview">
+      <div class="hero-stat"><b id="statItems">—</b><span>Cosmetics</span></div>
+      <div class="hero-stat"><b id="statValues">—</b><span>With values</span></div>
+      <div class="hero-stat"><b id="statDemand">—</b><span>Demand</span></div>
+      <div class="hero-stat"><b id="statPhotos">—</b><span>Catalog</span></div>
     </div>
   </header>
 
-  <section class="toolbar">
-    <div class="search-wrap"><span class="search-icon">⌕</span><input id="search" class="search" placeholder="Search cosmetics…" autocomplete="off"></div>
+  <section class="toolbar" aria-label="Trade controls">
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input id="search" class="search" placeholder="Find a cosmetic…" autocomplete="off" aria-label="Search cosmetics">
+      <button id="clearSearch" class="clear-search" type="button" aria-label="Clear search">×</button>
+      <span class="search-key">/</span>
+    </div>
     <div class="target-switch" aria-label="Choose which offer receives items">
       <button class="target-btn active" data-side="a">Your offer</button>
       <button class="target-btn" data-side="b">Their offer</button>
     </div>
-    <div class="view-actions">
-      <label class="btn" for="fileInput">Custom CSV</label><input id="fileInput" class="file" type="file" accept=".csv,text/csv">
+    <select id="sortSelect" class="sort-select" aria-label="Sort cosmetics">
+      <option value="name">Name A–Z</option>
+      <option value="value">Adjusted value</option>
+      <option value="base">Base value</option>
+      <option value="demand">Demand</option>
+    </select>
+    <div class="top-actions">
+      <div id="status" class="status loading" aria-live="polite">Loading sources…</div>
+      <button id="reload" class="btn ghost">Sync</button>
+      <label class="btn ghost" for="fileInput">CSV</label><input id="fileInput" class="file" type="file" accept=".csv,text/csv">
     </div>
   </section>
 
   <main class="layout">
     <section class="panel">
-      <div class="panel-head"><h2>Cosmetics</h2><small id="count">0 items</small></div>
+      <div class="panel-head">
+        <div class="panel-title"><span class="panel-icon">◫</span><h2>Cosmetics</h2></div>
+        <small id="count">0 items</small>
+      </div>
       <div id="filters" class="filters"></div>
-      <div class="catalog-meta"><span>Click <b>+</b> or drag a cosmetic into an offer.</span><span id="activeDest" class="active-dest a">Adding to Your Offer</span></div>
-      <div id="items" class="items"><div class="empty">Loading cosmetics…</div></div>
+      <div class="catalog-meta">
+        <span>Press <b>+</b> to add instantly, or drag an item across.</span>
+        <span id="activeDest" class="active-dest a">Adding to YOUR offer</span>
+      </div>
+      <div id="items" class="items"><div class="empty"><div class="empty-icon">•••</div><b>Loading cosmetics</b><span>Connecting to the wiki and live value sheet.</span></div></div>
     </section>
 
     <aside class="side">
       <section class="panel">
-        <div class="panel-head"><h2>Trade</h2><small>Drag between sides</small></div>
+        <div class="panel-head">
+          <div class="panel-title"><span class="panel-icon">⇄</span><h2>Your trade</h2></div>
+          <small>Tap a side to target it</small>
+        </div>
         <div class="offers-grid">
           <div id="offerCardA" class="offer active a" data-select-side="a">
-            <div class="offer-head"><span class="offer-name">Your Offer</span><button class="mini-btn" data-clear="a">Clear</button></div>
+            <div class="offer-head">
+              <div class="offer-name-wrap"><span class="offer-name">Your Offer</span><span id="offerCountA" class="offer-count">0 items</span></div>
+              <button class="mini-btn" data-clear="a">Clear</button>
+            </div>
             <div id="offerA" class="offer-list a" data-drop-side="a"></div>
-            <div class="offer-total"><div class="offer-total-copy"><span>Adjusted total</span><small id="baseTotalA">Base: 0</small></div><strong id="totalA">0</strong></div>
+            <div class="offer-total"><div class="offer-total-copy"><span>Demand-adjusted</span><small id="baseTotalA">Base 0</small></div><strong id="totalA">0</strong></div>
           </div>
           <div id="offerCardB" class="offer b" data-select-side="b">
-            <div class="offer-head"><span class="offer-name">Their Offer</span><button class="mini-btn" data-clear="b">Clear</button></div>
+            <div class="offer-head">
+              <div class="offer-name-wrap"><span class="offer-name">Their Offer</span><span id="offerCountB" class="offer-count">0 items</span></div>
+              <button class="mini-btn" data-clear="b">Clear</button>
+            </div>
             <div id="offerB" class="offer-list b" data-drop-side="b"></div>
-            <div class="offer-total"><div class="offer-total-copy"><span>Adjusted total</span><small id="baseTotalB">Base: 0</small></div><strong id="totalB">0</strong></div>
+            <div class="offer-total"><div class="offer-total-copy"><span>Demand-adjusted</span><small id="baseTotalB">Base 0</small></div><strong id="totalB">0</strong></div>
           </div>
         </div>
       </section>
 
       <section class="panel">
-        <div class="panel-head"><h2>Comparison</h2></div>
-        <div class="compare">
-          <div id="verdict" class="verdict">Add items to compare</div>
-          <div id="difference" class="difference">Adjusted difference: 0</div><div id="baseDifference" class="compare-sub">Base difference: 0</div>
-          <div class="bar"><div id="barA" class="bar-a" style="width:50%"></div><div id="barB" class="bar-b" style="width:50%"></div></div>
-          <div class="formula-note"><b>Demand adjusted value</b> = sheet value × demand multiplier. A 5/10 or Medium demand is neutral (×1.00); stronger demand raises the usable trade value and weaker demand lowers it.</div><div class="compare-actions"><button id="swap" class="btn">Swap</button><button id="clearAll" class="btn danger">Clear all</button></div>
+        <div class="panel-head">
+          <div class="panel-title"><span class="panel-icon">◎</span><h2>Trade balance</h2></div>
+          <small>Demand adjusted</small>
+        </div>
+        <div id="compareCard" class="compare" data-tone="idle">
+          <div class="compare-hero">
+            <div>
+              <div id="verdict" class="verdict">Build a trade</div>
+              <div id="difference" class="difference">Adjusted difference: 0</div>
+              <div id="baseDifference" class="compare-sub">Base difference: 0</div>
+            </div>
+            <div class="score"><div><b id="balanceScore">—</b><span>balance</span></div></div>
+          </div>
+          <div class="balance-track" aria-label="Trade value balance">
+            <div id="barA" class="bar-a" style="width:50%"></div>
+            <div id="barB" class="bar-b" style="width:50%"></div>
+            <div class="balance-mid"></div>
+            <div id="barMarker" class="bar-marker" style="left:50%"></div>
+          </div>
+          <div class="balance-legend"><span>Your side</span><span>Even</span><span>Their side</span></div>
+          <div id="balanceHint" class="balance-hint">Choose a side, then add cosmetics from the catalog.</div>
+          <div class="formula-note"><b>How it works:</b> adjusted value = sheet value × demand multiplier. Base value is always shown separately so the demand adjustment remains transparent.</div>
+          <div class="compare-actions"><button id="swap" class="btn">Swap sides</button><button id="clearAll" class="btn danger">Clear trade</button></div>
         </div>
         <details class="tools">
-          <summary>Paste a trade</summary>
+          <summary>Paste a trade instead</summary>
           <div class="tools-body">
-            <textarea id="tradeText" class="trade-input" placeholder="Astro Helmet + Sand Explosion for Summer Shades + Arabesque Bag"></textarea>
-            <div class="tool-actions"><button id="parseTrade" class="btn primary">Convert</button><button id="example" class="btn">Example</button></div>
+            <textarea id="tradeText" class="trade-input" placeholder="Example: Astro Helmet + Sand Explosion for Summer Shades + Arabesque Bag"></textarea>
+            <div class="tool-actions"><button id="parseTrade" class="btn primary">Build trade</button><button id="example" class="btn">Use example</button></div>
             <div id="report" class="report">Use “for” or “vs” between their offer and your offer.</div>
           </div>
         </details>
-        <div class="source-note">Values + demand: published SCP:RP Google Sheet. Catalog/photos: SCP: Roleplay Wiki contributors. The sheet is rechecked automatically every 2 minutes; Custom CSV pauses live sheet refresh until Sync all.</div>
+        <div class="source-note">The published Google Sheet is rechecked automatically every 2 minutes. Loading a custom CSV temporarily pauses live sheet refresh until you press Sync.</div>
       </section>
     </aside>
   </main>
+
+  <div class="footer-meta">
+    <span><b id="syncTime">Waiting for live data</b> · Values &amp; demand from the published Google Sheet.</span>
+    <span>Catalog &amp; images: SCP:RP Wiki contributors.</span>
+  </div>
 </div>
+<div id="toastHost" class="toast-host" aria-live="polite" aria-atomic="true"></div>
 
 <script>
+
 const WIKI_API='https://scproleplay.fandom.com/api.php';
 const WIKI_PAGES=[
   {page:'Accessories',group:'Accessories'},
@@ -125,6 +266,21 @@ const CSV_URLS=[
   `${SHEET_PUB}?output=csv`
 ];
 const SHEET_REFRESH_MS=120000;
+const DISPLAY_FILTERS=[
+  'All',
+  'Accessories',
+  'Weapon Skins',
+  'Morphs',
+  'C4 Effects',
+  'Kill Effects',
+  '173 Cages',
+  '096 Bags',
+  'SCP Crates'
+];
+// Category authority:
+// dedicated pages > exact Bundles subsection/type > Accessories fallback.
+const FORCE_MORPH_NAMES=new Set(['goc morph','gru p morph','tsh morph','tau 5 morph']);
+const ROBUX_IMAGE_RE=/\/robux(?:\.png)?(?:\/|\?|$)|4\/41\/robux\.png/i;
 const DEMAND_TEXT_MULTIPLIERS=[
   [/\b(terrible|dead|very low|none)\b/i,.75],
   [/\b(low|poor|bad)\b/i,.85],
@@ -136,48 +292,170 @@ const DEMAND_TEXT_MULTIPLIERS=[
   [/\b(excellent|extreme|insane)\b/i,1.30]
 ];
 
-let catalog=[],sheetMap=new Map(),sheetInfo={loaded:false,valueHeader:'Value',demandHeader:'Demand',loadedAt:0},offerA=[],offerB=[],activeSide='a',activeFilter='All',dragPayload=null,customSheetData=false;
+let wikiCatalog=[],catalog=[],sheetMap=new Map(),sheetInfo={loaded:false,valueHeader:'Value',demandHeader:'Demand',loadedAt:0},offerA=[],offerB=[],activeSide='a',activeFilter='All',activeSort='name',dragPayload=null,customSheetData=false;
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 const text=e=>String(e?.textContent||'').replace(/\[[^\]]*\]/g,' ').replace(/\s+/g,' ').trim();
-function status(t,type=''){const e=$('#status');e.textContent=t;e.className='status '+type}
+function status(t,type=''){
+  const e=$('#status');if(!e)return;
+  e.textContent=t;e.className='status '+type;
+}
+function syncLabel(){
+  if(!sheetInfo.loadedAt)return 'Waiting for live data';
+  const d=new Date(sheetInfo.loadedAt);
+  return `Sheet synced ${d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`;
+}
+function toast(message){
+  const host=$('#toastHost');if(!host)return;
+  const el=document.createElement('div');el.className='toast';el.textContent=message;host.appendChild(el);
+  requestAnimationFrame(()=>el.classList.add('show'));
+  setTimeout(()=>{el.classList.remove('show');setTimeout(()=>el.remove(),220)},1800);
+}
+function updateStats(){
+  if(!catalog.length)return;
+  const valued=catalog.filter(x=>valueFor(x)>0).length;
+  const demanded=catalog.filter(x=>x.demandRaw).length;
+  const images=catalog.filter(x=>x.image).length;
+  if($('#statItems'))$('#statItems').textContent=fmt(catalog.length);
+  if($('#statValues'))$('#statValues').textContent=`${fmt(valued)} / ${fmt(catalog.length)}`;
+  if($('#statDemand'))$('#statDemand').textContent=`${fmt(demanded)} live`;
+  if($('#statPhotos'))$('#statPhotos').textContent=`${fmt(images)} photos`;
+  if($('#syncTime'))$('#syncTime').textContent=syncLabel();
+}
+function demandTone(mult){
+  if(mult>=1.18)return 'very-high';
+  if(mult>1.001)return 'high';
+  if(mult<.90)return 'very-low';
+  if(mult<.999)return 'low';
+  return 'neutral';
+}
+function demandBars(mult){
+  const normalized=Math.max(0,Math.min(1,(mult-.65)/.75));
+  const on=Math.max(1,Math.round(normalized*5));
+  return `<span class="demand-bars" aria-hidden="true">${[1,2,3,4,5].map(i=>`<i class="${i<=on?'on':''}"></i>`).join('')}</span>`;
+}
 function fmt(n){return new Intl.NumberFormat(undefined,{maximumFractionDigits:2}).format(Number(n)||0)}
+function tweenNumber(el,to,{suffix='',duration=420}={}){
+  if(!el)return;
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){el.textContent=fmt(to)+suffix;el.dataset.num=to;return}
+  const from=Number(el.dataset.num)||0,start=performance.now();
+  const ease=t=>1-Math.pow(1-t,3);
+  const tick=now=>{
+    const p=Math.min(1,(now-start)/duration),v=from+(Number(to)-from)*ease(p);
+    el.textContent=fmt(v)+suffix;
+    if(p<1)requestAnimationFrame(tick);else el.dataset.num=Number(to);
+  };
+  requestAnimationFrame(tick);
+}
 function numberFrom(v){if(typeof v==='number')return v;const m=String(v??'').replace(/,/g,'').match(/-?\d+(?:\.\d+)?/);return m?Number(m[0]):0}
 function key(s){return String(s??'').toLowerCase().replace(/&amp;/g,'and').replace(/artic/g,'arctic').replace(/[’']/g,'').replace(/[^a-z0-9]+/g,' ').trim()}
 function looseKey(s){return key(s).replace(/\b(the|skin|cosmetic|accessory|morph|bundle)\b/g,'').replace(/\s+/g,' ').trim()}
 function imageURL(img){
   if(!img)return'';
   const raw=img.getAttribute('data-src')||img.getAttribute('data-original')||img.getAttribute('src')||'';
-  if(raw && !raw.startsWith('data:'))return raw.replace(/^\/\//,'https://');
-  const srcset=img.getAttribute('data-srcset')||img.getAttribute('srcset')||'';
-  const first=srcset.split(',')[0]?.trim().split(/\s+/)[0]||'';
-  return first.replace(/^\/\//,'https://');
+  let url=(raw&&!raw.startsWith('data:'))?raw.replace(/^\/\//,'https://'):'';
+  if(!url){
+    const srcset=img.getAttribute('data-srcset')||img.getAttribute('srcset')||'';
+    url=(srcset.split(',')[0]?.trim().split(/\s+/)[0]||'').replace(/^\/\//,'https://');
+  }
+  if(!url||ROBUX_IMAGE_RE.test(url))return'';
+  const alt=key(img.getAttribute('alt')||'');
+  if(alt==='robux'||alt==='robux icon')return'';
+  return url;
+}
+function imageFromNode(node){
+  if(!node)return'';
+  for(const img of node.querySelectorAll('img')){
+    const url=imageURL(img);
+    if(url)return url;
+  }
+  return'';
 }
 function cleanName(s){return String(s||'').replace(/\[[^\]]*\]/g,'').replace(/\s+/g,' ').replace(/^[-–—•|:]+|[-–—•|:]+$/g,'').trim()}
 function isJunkName(name){
   const n=key(name);
   if(!n || n.length<2)return true;
-  if(/^(item|item name|name|image|images|accessory|accessory name|skin|skin name|weapon skin|weapon skins|morph|morph name|bundle|bundle name|effect|effect name|credits cost|credit cost|robux cost|cost|price|description|rarity|obtainability|obtained|unknown|none|n a|tba|type)$/.test(n))return true;
+  if(/^(item|item name|name|image|images|accessory|accessory name|skin|skin name|weapon skin|weapon skins|morph|morph name|bundle|bundle name|effect|effect name|cage|cage name|bag|bag name|crate|crate name|credits cost|credit cost|robux cost|cost|price|description|rarity|obtainability|obtained|unknown|none|n a|tba|type)$/.test(n))return true;
   if(/^\d+(?:\.\d+)?$/.test(n))return true;
   return false;
 }
 function inferType(group,heading=''){
   const h=key(heading);
-  if(/weapon|gun skin|skin/.test(h))return 'Weapon Skin';
-  if(/accessor/.test(h))return 'Accessory';
-  if(/morph/.test(h))return 'Morph';
-  if(/kill effect|effect/.test(h))return 'Kill Effect';
-  if(/173.*cage|cage/.test(h))return 'Cage Skin';
-  if(/096.*bag|bag/.test(h))return 'Bag Skin';
-  if(/bundle/.test(h))return 'Bundle';
-  return group==='Accessories'?'Accessory':group==='Weapon Skins'?'Weapon Skin':group==='Morphs'?'Morph':'Bundle Item';
+
+  // Exact/specific types first. Do not let generic words such as "effect"
+  // swallow C4 Effects, or generic bundle context swallow cages/bags/crates.
+  if(/\bc4\b.*\beffect\b|\bc4 effect\b/.test(h))return 'C4 Effect';
+  if(/\bkill\b.*\beffect\b|\bkill effect\b/.test(h))return 'Kill Effect';
+  if(/\b173\b.*\bcage\b|\bscp 173 cage\b/.test(h))return '173 Cage';
+  if(/\b096\b.*\bbag\b|\bscp 096 bag\b/.test(h))return '096 Bag';
+  if(/\bscp\b.*\bcrate\b|\bscp crate\b|\bcrate\b/.test(h))return 'SCP Crate';
+  if(/\bgun skin\b|\bweapon skin\b/.test(h))return 'Weapon Skin';
+  if(/\bmorph\b/.test(h))return 'Morph';
+  if(/\baccessor/.test(h))return 'Accessory';
+
+  // Loose fallbacks only after the exact section rules above.
+  if(/\bcage\b/.test(h))return '173 Cage';
+  if(/\bbag\b/.test(h))return '096 Bag';
+  if(/\bskin\b/.test(h))return 'Weapon Skin';
+  if(/\beffect\b/.test(h))return 'Kill Effect';
+  if(/\bbundle\b/.test(h))return 'Bundle';
+
+  return group==='Accessories'?'Accessory':
+         group==='Weapon Skins'?'Weapon Skin':
+         group==='Morphs'?'Morph':'Bundle Item';
 }
+function categoryFor(item){
+  const n=key(item?.name);
+  if(FORCE_MORPH_NAMES.has(n))return 'Morphs';
+
+  // A merged item may have been discovered multiple times. Use ALL observations.
+  const sources=[...(item?.sources||[]),item?.group].filter(Boolean).map(key);
+  const sections=[...(item?.sections||[]),item?.section].filter(Boolean).map(key);
+  const types=[...(item?.types||[]),item?.type].filter(Boolean).map(key);
+  const evidence=[...sections,...types];
+
+  const has=(re)=>evidence.some(v=>re.test(v));
+
+  // Dedicated pages are strongest evidence.
+  if(sources.includes('morphs'))return 'Morphs';
+  if(sources.includes('weapon skins'))return 'Weapon Skins';
+
+  // Exact Bundles subsections/types. These are intentionally BEFORE Accessories.
+  if(has(/^(c4 effect|c4 effects)$/))return 'C4 Effects';
+  if(has(/^(kill effect|kill effects)$/))return 'Kill Effects';
+  if(has(/^(173 cage|scp 173 cage|cage skin)$/))return '173 Cages';
+  if(has(/^(096 bag|scp 096 bag|bag skin)$/))return '096 Bags';
+  if(has(/^(scp crate|scp crates|crate skin)$/))return 'SCP Crates';
+  if(has(/^(gun skin|gun skins|weapon skin|weapon skins)$/))return 'Weapon Skins';
+  if(has(/^(morph|morphs)$/))return 'Morphs';
+
+  // Strong name fallback for the forced bundle morphs.
+  if(/\bmorph\b/.test(n))return 'Morphs';
+
+  // Only genuine Accessory evidence is allowed to land here.
+  if(sources.includes('accessories')||has(/^(accessory|accessories)$/))return 'Accessories';
+
+  // Unknown bundle rows should not silently masquerade as Accessories.
+  return '';
+}
+function isBundleContainer(item){
+  const types=[...(item?.types||[]),item?.type].filter(Boolean).map(key);
+  const sections=[...(item?.sections||[]),item?.section].filter(Boolean).map(key);
+  // Hide the bundle PRODUCT rows themselves, while keeping the individual cosmetics
+  // found inside the Morph / Gun Skin / Accessory / Cage / Bag / Effect sections.
+  const hasRealCosmeticEvidence=
+    types.some(t=>['morph','weapon skin','accessory','173 cage','cage skin','096 bag','bag skin','kill effect','c4 effect','scp crate','crate skin'].includes(t))||
+    sections.some(s=>['morph','morphs','gun skin','gun skins','weapon skin','weapon skins','accessory','accessories',
+                      '173 cage','scp 173 cage','096 bag','scp 096 bag','scp crate','c4 effect','c4 effects','kill effect','kill effects'].includes(s));
+  return !hasRealCosmeticEvidence && types.some(t=>t==='bundle'||t==='bundle item');
+}
+
 function bestNameColumn(headers,group){
   let best=-1,score=-999;
   headers.forEach((h,i)=>{
     const x=key(h);let s=0;
-    if(/^(skin name|weapon skin|accessory name|morph name|item name|effect name)$/.test(x))s=120;
-    else if(/(skin|accessory|morph|item|effect).*name/.test(x))s=110;
+    if(/^(skin name|weapon skin|accessory name|morph name|item name|effect name|cage name|bag name|crate name)$/.test(x))s=120;
+    else if(/(skin|accessory|morph|item|effect|cage|bag|crate).*name/.test(x))s=110;
     else if(x==='name')s=100;
     else if(x==='morph'||x==='accessory'||x==='skin'||x==='item')s=95;
     else if(x==='bundle name')s=group==='Bundles'?90:25;
@@ -226,14 +504,14 @@ function extractTable(table,group,heading){
   let nameRow=-1,imageRow=-1;
   for(let r=0;r<grid.length;r++){
     const label=key(text(grid[r][0]));
-    if(/^(item name|accessory name|skin name|weapon skin|morph name|bundle name|effect name|name)$/.test(label))nameRow=r;
+    if(/^(item name|accessory name|skin name|weapon skin|morph name|bundle name|effect name|cage name|bag name|crate name|name)$/.test(label))nameRow=r;
     if(/^(image|images)$/.test(label))imageRow=r;
   }
-  if(nameRow>=0 && grid[nameRow].length>2){
+  if(nameRow>=0 && grid[nameRow].length>1){
     const out=[];const names=grid[nameRow];const images=imageRow>=0?grid[imageRow]:[];
     for(let c=1;c<names.length;c++){
       const name=cleanName(text(names[c]));if(isJunkName(name))continue;
-      const img=imageURL(images[c]?.querySelector('img'))||imageURL(names[c]?.querySelector('img'));
+      const img=imageFromNode(images[c])||imageFromNode(names[c]);
       const meta=[];
       for(let r=0;r<grid.length;r++){
         if(r===nameRow||r===imageRow||!grid[r][c])continue;
@@ -259,7 +537,7 @@ function extractTable(table,group,heading){
       candidate=fallback?.v||'';
     }
     if(isJunkName(candidate))continue;
-    const img=imageURL(cells.find(c=>c.querySelector('img'))?.querySelector('img'));
+    const img=cells.map(imageFromNode).find(Boolean)||'';
     out.push({name:candidate,image:img,group,type:inferType(group,heading),section:heading,details:detailsFromRow(cells,headers,nameCol)});
   }
   return out;
@@ -290,12 +568,34 @@ function mergeCatalog(items){
     const name=cleanName(raw.name);if(isJunkName(name))continue;
     const k=key(name);if(!k)continue;
     const cur=map.get(k);
-    if(!cur){map.set(k,{...raw,name,sources:[raw.group]});continue}
-    if(raw.image&&!cur.image)cur.image=raw.image;
-    if(raw.details&&!cur.details)cur.details=raw.details;
-    if(raw.type&&/Bundle Item/.test(cur.type))cur.type=raw.type;
-    if(raw.section&&!cur.section)cur.section=raw.section;
-    if(!cur.sources.includes(raw.group))cur.sources.push(raw.group);
+
+    if(!cur){
+      map.set(k,{
+        ...raw,
+        name,
+        sources:raw.group?[raw.group]:[],
+        sections:raw.section?[raw.section]:[],
+        types:raw.type?[raw.type]:[]
+      });
+      continue;
+    }
+
+    // Preserve ALL observations instead of allowing the first page to "win".
+    if(raw.group&&!cur.sources.includes(raw.group))cur.sources.push(raw.group);
+    if(raw.section&&!cur.sections.includes(raw.section))cur.sections.push(raw.section);
+    if(raw.type&&!cur.types.includes(raw.type))cur.types.push(raw.type);
+
+    // Prefer media/details from a dedicated authoritative page over Bundles when
+    // both versions of the same cosmetic exist.
+    const rawDedicated=raw.group==='Weapon Skins'||raw.group==='Morphs'||raw.group==='Accessories';
+    const curDedicated=cur.group==='Weapon Skins'||cur.group==='Morphs'||cur.group==='Accessories';
+    if(raw.image&&(!cur.image||(rawDedicated&&!curDedicated)))cur.image=raw.image;
+    if(raw.details&&(!cur.details||(rawDedicated&&!curDedicated)))cur.details=raw.details;
+
+    // Keep a useful representative type/section, but categoryFor() uses the arrays.
+    if(raw.type&&(!cur.type||/Bundle Item|Bundle/i.test(cur.type)))cur.type=raw.type;
+    if(raw.section&&(!cur.section||/Bundles?/i.test(cur.section)))cur.section=raw.section;
+    if(rawDedicated&&!curDedicated)cur.group=raw.group;
   }
   return [...map.values()].sort((a,b)=>a.name.localeCompare(b.name));
 }
@@ -375,72 +675,159 @@ async function fetchPublishedSheet(){
 async function loadSheetData({quiet=false,allowLocalFallback=true}={}){
   if(customSheetData)return true;
   try{
-    const result=await fetchPublishedSheet();sheetMap=result.map;sheetInfo=result.info;attachSheetData();if(catalog.length)renderAll();
-    if(!quiet)status(`Sheet synced · ${sheetInfo.demandFound?'demand live':'no demand column found'}`,'ok');
+    const result=await fetchPublishedSheet();sheetMap=result.map;sheetInfo=result.info;attachSheetData();if(wikiCatalog.length)renderAll();
+    if(!quiet)status(`Live values synced`,'ok');updateStats();
     return true;
   }catch(remoteError){
     if(allowLocalFallback){
-      try{const r=await fetch('ohiofolder.csv',{cache:'no-store'});if(r.ok){const t=await r.text();if(!/^\s*</.test(t)){const result=buildSheetMap(t);sheetMap=result.map;sheetInfo=result.info;attachSheetData();if(catalog.length)renderAll();return true}}}catch{}
+      try{const r=await fetch('ohiofolder.csv',{cache:'no-store'});if(r.ok){const t=await r.text();if(!/^\s*</.test(t)){const result=buildSheetMap(t);sheetMap=result.map;sheetInfo=result.info;attachSheetData();if(wikiCatalog.length)renderAll();return true}}}catch{}
     }
     if(!quiet)status('Google Sheet unavailable','err');
     return false;
   }
 }
 function attachSheetData(){
-  catalog.forEach(item=>{
+  wikiCatalog.forEach(item=>{
     const data=sheetMap.get(key(item.name))??sheetMap.get(looseKey(item.name));
-    item.value=data?.value||0;item.demandRaw=data?.demandRaw||'';item.demandLabel=data?.demandLabel||'No demand';item.demandMultiplier=Number(data?.demandMultiplier)||1;item.adjustedValue=item.value*item.demandMultiplier;
+    item.tradable=!!data;
+    item.value=data?.value||0;item.demandRaw=data?.demandRaw||'';item.demandLabel=data?.demandLabel||'No demand';
+    item.demandMultiplier=Number(data?.demandMultiplier)||1;item.adjustedValue=item.value*item.demandMultiplier;
+    item.category=categoryFor(item);
   });
+  applyCatalogRules();
+}
+function applyCatalogRules(){
+  // The published trade-value sheet is the tradability gate.
+  // If the item is not represented there, do not show it as tradeable.
+  catalog=wikiCatalog.filter(item=>item.tradable && !isBundleContainer(item) && DISPLAY_FILTERS.includes(item.category));
+  if(!DISPLAY_FILTERS.includes(activeFilter))activeFilter='All';
 }
 async function load(){
   customSheetData=false;status('Syncing wiki + sheet…','loading');
   const [wikiResults,hasSheet]=await Promise.all([Promise.allSettled(WIKI_PAGES.map(fetchWikiPage)),loadSheetData({quiet:true})]);
   const all=[];const failed=[];wikiResults.forEach((result,i)=>{if(result.status==='fulfilled')all.push(...result.value);else failed.push(WIKI_PAGES[i].group)});
   if(!all.length){status('Wiki fetch blocked','err');$('#items').innerHTML='<div class="empty"><b>Could not load the Fandom wiki.</b><br><br>Run this page from a normal web server and press “Sync all”.</div>';return}
-  catalog=mergeCatalog(all);attachSheetData();restoreOffers();renderAll();
+  wikiCatalog=mergeCatalog(all);attachSheetData();restoreOffers();renderAll();
   const withImages=catalog.filter(x=>x.image).length;const valued=catalog.filter(x=>valueFor(x)>0).length;const demanded=catalog.filter(x=>x.demandRaw).length;const note=failed.length?` · ${failed.join(', ')} failed`:'';
-  status(`${catalog.length} items · ${withImages} photos · ${valued} values${hasSheet?` · ${demanded} demand`:''}${note}`,failed.length?'err':'ok');
+  {
+      const catCounts=DISPLAY_FILTERS.slice(1).map(cat=>`${cat}: ${catalog.filter(x=>x.category===cat).length}`).join(' · ');
+      status(`${catalog.length} tradable cosmetics ready${note}`,failed.length?'err':'ok');
+      console.info('[SCP:RP catalog]',catCounts);
+      updateStats();
+    }
 }
 function valueFor(item){return Number(item?.value)||0}
 function demandMultiplierFor(item){return Number(item?.demandMultiplier)||1}
 function adjustedFor(item){return valueFor(item)*demandMultiplierFor(item)}
-function groupsFor(item){return item.sources||[item.group]}
+function groupsFor(item){return[item.category||categoryFor(item)]}
 function renderFilters(){
-  const defs=['All',...WIKI_PAGES.map(x=>x.group)];
-  $('#filters').innerHTML=defs.map(name=>{const count=name==='All'?catalog.length:catalog.filter(x=>groupsFor(x).includes(name)).length;return `<button class="filter ${activeFilter===name?'active':''}" data-filter="${esc(name)}">${esc(name)} <span>${count}</span></button>`}).join('');
+  $('#filters').innerHTML=DISPLAY_FILTERS.map(name=>{const count=name==='All'?catalog.length:catalog.filter(x=>x.category===name).length;return `<button class="filter ${activeFilter===name?'active':''}" data-filter="${esc(name)}">${esc(name)} <span>${count}</span></button>`}).join('');
 }
 function thumbHTML(item,small=false){const cls=small?'offer-thumb':'thumb';return `<div class="${cls}">${item.image?`<img src="${esc(item.image)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.classList.add('bad');this.parentElement.dataset.empty='1'">`:'No photo'}</div>`}
 function renderItems(){
   const q=key($('#search').value);
-  const filtered=catalog.filter(item=>(activeFilter==='All'||groupsFor(item).includes(activeFilter))&&(!q||key([item.name,item.type,item.section,item.details,item.demandLabel,...groupsFor(item)].join(' ')).includes(q)));
+  let filtered=catalog.filter(item=>(activeFilter==='All'||item.category===activeFilter)&&(!q||key([item.name,item.type,item.section,item.category,item.details,item.demandLabel,...groupsFor(item)].join(' ')).includes(q)));
+  filtered=[...filtered].sort((a,b)=>{
+    if(activeSort==='value')return adjustedFor(b)-adjustedFor(a)||a.name.localeCompare(b.name);
+    if(activeSort==='demand')return demandMultiplierFor(b)-demandMultiplierFor(a)||adjustedFor(b)-adjustedFor(a)||a.name.localeCompare(b.name);
+    if(activeSort==='base')return valueFor(b)-valueFor(a)||a.name.localeCompare(b.name);
+    return a.name.localeCompare(b.name);
+  });
   $('#count').textContent=`${filtered.length} item${filtered.length===1?'':'s'}`;
-  $('#items').innerHTML=filtered.length?filtered.map(item=>{
-    const idx=catalog.indexOf(item),base=valueFor(item),adjusted=adjustedFor(item),mult=demandMultiplierFor(item);const sourceTags=groupsFor(item).slice(0,2).map(s=>`<span class="tag">${esc(s)}</span>`).join('');
-    const demandClass=mult>1.001?'good':mult<.999?'bad':'';const demandText=item.demandRaw?esc(item.demandLabel):'No demand';
-    return `<article class="item-card" draggable="true" data-item="${idx}">${thumbHTML(item)}<div class="item-copy"><div class="item-name" title="${esc(item.name)}">${esc(item.name)}</div><div class="item-tags"><span class="tag">${esc(item.type||'Cosmetic')}</span>${sourceTags}</div><div class="item-value ${adjusted?'':'none'}">${adjusted?`Adjusted ${fmt(adjusted)}`:'No trade value'}</div><div class="item-stats"><span>Base <b>${base?fmt(base):'—'}</b></span><span class="demand-pill ${demandClass}">${demandText} · ×${mult.toFixed(2)}</span></div></div><button class="add-btn ${activeSide}" data-add="${idx}" title="Add to ${activeSide==='a'?'your':'their'} offer">+</button></article>`
-  }).join(''):'<div class="empty">No matching cosmetics.</div>';
+  $('#items').innerHTML=filtered.length?filtered.map((item,visualIndex)=>{
+    const idx=catalog.indexOf(item),base=valueFor(item),adjusted=adjustedFor(item),mult=demandMultiplierFor(item);
+    const sourceTags=`<span class="tag">${esc(item.category||categoryFor(item))}</span>`;
+    const tone=demandTone(mult),demandText=item.demandRaw?esc(item.demandLabel):'No demand';
+    return `<article class="item-card card-enter" style="--stagger:${Math.min(18,visualIndex)}" draggable="true" data-item="${idx}">
+      ${thumbHTML(item)}
+      <div class="item-copy">
+        <div class="item-topline"><div class="item-name" title="${esc(item.name)}">${esc(item.name)}</div>${sourceTags}</div>
+        <div class="item-value ${adjusted?'':'none'}">${adjusted?fmt(adjusted):'No trade value'}<span>${adjusted?' adjusted':''}</span></div>
+        <div class="item-stats">
+          <span class="base-stat">Base <b>${base?fmt(base):'—'}</b></span>
+          <span class="demand-pill ${tone}" title="Demand multiplier">${demandBars(mult)}<b>${demandText}</b><em>×${mult.toFixed(2)}</em></span>
+        </div>
+      </div>
+      <button class="add-btn ${activeSide}" data-add="${idx}" title="Add ${esc(item.name)} to ${activeSide==='a'?'your':'their'} offer" aria-label="Add ${esc(item.name)}">+</button>
+    </article>`
+  }).join(''):'<div class="empty"><div class="empty-icon">⌕</div><b>No matching cosmetics</b><span>Try a shorter name or another category.</span></div>';
 }
-function setSide(side){activeSide=side;$$('.target-btn').forEach(b=>b.classList.toggle('active',b.dataset.side===side));$('#offerCardA').classList.toggle('active',side==='a');$('#offerCardB').classList.toggle('active',side==='b');$('#activeDest').textContent=side==='a'?'Adding to Your Offer':'Adding to Their Offer';$('#activeDest').className='active-dest '+side;renderItems()}
+
+function burstAt(element){
+  if(!element||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const r=element.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;
+  for(let i=0;i<10;i++){
+    const p=document.createElement('i');p.className='fx-burst';
+    p.style.left=x+'px';p.style.top=y+'px';p.style.setProperty('--a',(i*36+Math.random()*18)+'deg');
+    p.style.setProperty('--d',(24+Math.random()*34)+'px');document.body.appendChild(p);
+    setTimeout(()=>p.remove(),760);
+  }
+}
+function pulseOffer(side){
+  const el=$(side==='a'?'#offerCardA':'#offerCardB');if(!el)return;
+  el.classList.remove('flash-add');void el.offsetWidth;el.classList.add('flash-add');
+}
+
+function setSide(side){
+  activeSide=side;
+  $$('.target-btn').forEach(b=>b.classList.toggle('active',b.dataset.side===side));
+  $('#offerCardA').classList.toggle('active',side==='a');$('#offerCardB').classList.toggle('active',side==='b');
+  $('#activeDest').textContent=side==='a'?'Adding to YOUR offer':'Adding to THEIR offer';$('#activeDest').className='active-dest '+side;
+  renderItems();
+}
 function add(side,index,qty=1){if(!catalog[index])return;const list=side==='a'?offerA:offerB;const item=catalog[index];const hit=list.find(x=>x.key===key(item.name));hit?hit.qty+=qty:list.push({key:key(item.name),qty});renderOffers()}
 function resolveOffer(x){return catalog.find(i=>key(i.name)===x.key)}
 function totalBase(list){return list.reduce((sum,x)=>sum+valueFor(resolveOffer(x))*Math.max(1,Number(x.qty)||1),0)}
 function total(list){return list.reduce((sum,x)=>sum+adjustedFor(resolveOffer(x))*Math.max(1,Number(x.qty)||1),0)}
 function offerHTML(list,side){
   const valid=list.map((x,i)=>({x,i,item:resolveOffer(x)})).filter(v=>v.item);
-  return valid.length?valid.map(({x,i,item})=>{const adjusted=adjustedFor(item),mult=demandMultiplierFor(item);return `<div class="offer-row" draggable="true" data-offer-drag="${side}:${i}">${thumbHTML(item,true)}<div class="offer-row-name" title="${esc(item.name)}">${esc(item.name)}<small>${adjusted?`${fmt(adjusted)} adjusted · ${item.demandRaw?esc(item.demandLabel):'no demand'} ×${mult.toFixed(2)}`:'No value'}</small></div><input class="qty" type="number" min="1" value="${Math.max(1,x.qty)}" data-qty="${side}:${i}"><button class="remove" data-remove="${side}:${i}" aria-label="Remove">×</button></div>`}).join(''):`<div class="offer-empty">Drop cosmetics here<br>or press +</div>`
+  return valid.length?valid.map(({x,i,item})=>{
+    const adjusted=adjustedFor(item),mult=demandMultiplierFor(item),tone=demandTone(mult);
+    return `<div class="offer-row" draggable="true" data-offer-drag="${side}:${i}">
+      ${thumbHTML(item,true)}
+      <div class="offer-row-name" title="${esc(item.name)}">${esc(item.name)}
+        <small>${adjusted?`${fmt(adjusted)} adjusted`:'No value'} <span class="tiny-demand ${tone}">×${mult.toFixed(2)}</span></small>
+      </div>
+      <input class="qty" type="number" min="1" value="${Math.max(1,x.qty)}" data-qty="${side}:${i}" aria-label="Quantity for ${esc(item.name)}">
+      <button class="remove" data-remove="${side}:${i}" aria-label="Remove ${esc(item.name)}">×</button>
+    </div>`
+  }).join(''):`<div class="offer-empty"><span>＋</span><b>Drop cosmetics here</b><small>or select this side and press +</small></div>`
 }
 function renderOffers(){
   offerA=offerA.filter(resolveOffer);offerB=offerB.filter(resolveOffer);
   $('#offerA').innerHTML=offerHTML(offerA,'a');$('#offerB').innerHTML=offerHTML(offerB,'b');
-  const a=total(offerA),b=total(offerB),baseA=totalBase(offerA),baseB=totalBase(offerB);$('#totalA').textContent=fmt(a);$('#totalB').textContent=fmt(b);$('#baseTotalA').textContent=`Base: ${fmt(baseA)}`;$('#baseTotalB').textContent=`Base: ${fmt(baseB)}`;
-  if(!a&&!b){$('#verdict').textContent='Add valued items to compare';$('#difference').textContent='Adjusted difference: 0'}
-  else if(Math.abs(a-b)<.0001){$('#verdict').textContent='Equal demand-adjusted value';$('#difference').textContent='Adjusted difference: 0'}
-  else{$('#verdict').textContent=a>b?'Your offer is worth more':'Their offer is worth more';$('#difference').textContent=`Adjusted difference: ${fmt(Math.abs(a-b))}`}
+  const a=total(offerA),b=total(offerB),baseA=totalBase(offerA),baseB=totalBase(offerB);
+  tweenNumber($('#totalA'),a);tweenNumber($('#totalB'),b);
+  $('#baseTotalA').textContent=`Base ${fmt(baseA)}`;$('#baseTotalB').textContent=`Base ${fmt(baseB)}`;
+
+  const diff=Math.abs(a-b),max=Math.max(a,b),diffPct=max?diff/max*100:0;
+  const balance=max?Math.max(0,Math.round(100-diffPct)):0;
+  const aWins=a>b,bWins=b>a;
+  let verdict='Build a trade';
+  let hint='Choose a side, then add cosmetics from the catalog.';
+  let tone='idle';
+
+  if(a||b){
+    if(diffPct<=3){verdict='Very balanced trade';hint='The demand-adjusted totals are within 3% of each other.';tone='balanced'}
+    else if(diffPct<=10){verdict='Close trade';hint=`${aWins?'Their':'Your'} side needs about ${fmt(diff)} adjusted value to become even.`;tone='close'}
+    else if(diffPct<=25){verdict=aWins?'Your offer has the edge':'Their offer has the edge';hint=`${aWins?'Their':'Your'} side needs about ${fmt(diff)} adjusted value to catch up.`;tone='warning'}
+    else{verdict=aWins?'Your offer is much stronger':'Their offer is much stronger';hint=`A gap of ${fmt(diff)} adjusted value makes this trade noticeably uneven.`;tone='strong'}
+  }
+
+  $('#verdict').textContent=verdict;
+  $('#difference').textContent=(a||b)?`${fmt(diff)} adjusted difference · ${diffPct.toFixed(1)}% gap`:'Adjusted difference: 0';
   $('#baseDifference').textContent=`Base difference: ${fmt(Math.abs(baseA-baseB))}`;
+  if($('#balanceScore')){if(a||b)tweenNumber($('#balanceScore'),balance,{suffix:'%'});else{$('#balanceScore').textContent='—';$('#balanceScore').dataset.num='0'}}
+  if($('#balanceHint'))$('#balanceHint').textContent=hint;
+  if($('#compareCard'))$('#compareCard').dataset.tone=tone;
+  if($('#offerCountA'))$('#offerCountA').textContent=`${offerA.reduce((n,x)=>n+Math.max(1,Number(x.qty)||1),0)} items`;
+  if($('#offerCountB'))$('#offerCountB').textContent=`${offerB.reduce((n,x)=>n+Math.max(1,Number(x.qty)||1),0)} items`;
+
   const sum=a+b;$('#barA').style.width=(sum?a/sum*100:50)+'%';$('#barB').style.width=(sum?b/sum*100:50)+'%';
+  if($('#barMarker'))$('#barMarker').style.left=(sum?a/sum*100:50)+'%';
   localStorage.setItem('scp-trade-v3',JSON.stringify({offerA,offerB}));
 }
-function renderAll(){renderFilters();renderItems();renderOffers()}
+function renderAll(){renderFilters();renderItems();renderOffers();updateStats()}
 function findItem(query){
   const q=key(query);let idx=catalog.findIndex(i=>key(i.name)===q);if(idx>=0)return idx;
   const lq=looseKey(query);idx=catalog.findIndex(i=>looseKey(i.name)===lq);if(idx>=0)return idx;
@@ -464,14 +851,23 @@ document.addEventListener('click',e=>{
   const side=e.target.closest('[data-side]')?.dataset.side;if(side)setSide(side);
   const filter=e.target.closest('[data-filter]')?.dataset.filter;if(filter){activeFilter=filter;renderFilters();renderItems()}
   const select=e.target.closest('[data-select-side]')?.dataset.selectSide;if(select&&!e.target.closest('button,input'))setSide(select);
-  if(e.target.dataset.add!=null)add(activeSide,+e.target.dataset.add);
+  if(e.target.dataset.add!=null){
+    const idx=+e.target.dataset.add,item=catalog[idx];add(activeSide,idx);
+    burstAt(e.target);pulseOffer(activeSide);
+    if(item)toast(`${item.name} → ${activeSide==='a'?'Your':'Their'} offer`);
+  }
   if(e.target.dataset.clear){if(e.target.dataset.clear==='a')offerA=[];else offerB=[];renderOffers()}
   if(e.target.dataset.remove){const[s,i]=e.target.dataset.remove.split(':');(s==='a'?offerA:offerB).splice(+i,1);renderOffers()}
+  if(e.target.id==='clearSearch'){$('#search').value='';renderItems();$('#search').focus()}
 });
-document.addEventListener('input',e=>{if(e.target.id==='search')renderItems();if(e.target.dataset.qty){const[s,i]=e.target.dataset.qty.split(':');(s==='a'?offerA:offerB)[+i].qty=Math.max(1,+e.target.value||1);renderOffers()}});
+document.addEventListener('input',e=>{
+  if(e.target.id==='search'){renderItems();$('#clearSearch').classList.toggle('visible',!!e.target.value)}
+  if(e.target.dataset.qty){const[s,i]=e.target.dataset.qty.split(':');(s==='a'?offerA:offerB)[+i].qty=Math.max(1,+e.target.value||1);renderOffers()}
+});
+document.addEventListener('change',e=>{if(e.target.id==='sortSelect'){activeSort=e.target.value;renderItems()}});
 document.addEventListener('dragstart',e=>{const card=e.target.closest('[data-item]');const row=e.target.closest('[data-offer-drag]');if(card){dragPayload={type:'item',index:+card.dataset.item};card.classList.add('dragging')}else if(row){const[s,i]=row.dataset.offerDrag.split(':');dragPayload={type:'offer',side:s,index:+i}}});
 document.addEventListener('dragend',()=>{$$('.dragging').forEach(x=>x.classList.remove('dragging'));$$('.drag-over').forEach(x=>x.classList.remove('drag-over'));dragPayload=null});
-$$('[data-drop-side]').forEach(zone=>{zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag-over')});zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag-over');if(!dragPayload)return;const target=zone.dataset.dropSide;if(dragPayload.type==='item')add(target,dragPayload.index);else{const from=dragPayload.side,src=from==='a'?offerA:offerB,dst=target==='a'?offerA:offerB;const item=src.splice(dragPayload.index,1)[0];if(item){const hit=dst.find(x=>x.key===item.key);hit?hit.qty+=item.qty:dst.push(item);renderOffers()}}setSide(target)})});
+$$('[data-drop-side]').forEach(zone=>{zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag-over')});zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag-over');if(!dragPayload)return;const target=zone.dataset.dropSide;if(dragPayload.type==='item'){const item=catalog[dragPayload.index];add(target,dragPayload.index);pulseOffer(target);if(item)toast(`${item.name} → ${target==='a'?'Your':'Their'} offer`)}else{const from=dragPayload.side,src=from==='a'?offerA:offerB,dst=target==='a'?offerA:offerB;const item=src.splice(dragPayload.index,1)[0];if(item){const hit=dst.find(x=>x.key===item.key);hit?hit.qty+=item.qty:dst.push(item);renderOffers()}}setSide(target)})});
 $('#swap').onclick=()=>{[offerA,offerB]=[offerB,offerA];renderOffers()};
 $('#clearAll').onclick=()=>{offerA=[];offerB=[];renderOffers()};
 $('#reload').onclick=load;
@@ -479,8 +875,47 @@ $('#parseTrade').onclick=parseTrade;
 $('#example').onclick=()=>{$('#tradeText').value='Astro Helmet + Sand Explosion + Jungle Camo for Summer Shades + Arabesque Bag. I also add Arctic Camo and Dazzle Camo';parseTrade()};
 $('#fileInput').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const result=buildSheetMap(r.result);sheetMap=result.map;sheetInfo=result.info;customSheetData=true;attachSheetData();renderAll();status(`${catalog.length} items · custom value/demand CSV loaded`,'ok')}catch{status('Invalid value/demand CSV','err')}};r.readAsText(f)};
 
-setSide('a');load();
+
+function initAmbientFX(){
+  const canvas=$('#fxCanvas');if(!canvas||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const ctx=canvas.getContext('2d');let w=0,h=0,dpr=1,mouse={x:-9999,y:-9999},raf=0;
+  const particles=Array.from({length:34},()=>({x:Math.random(),y:Math.random(),vx:(Math.random()-.5)*.00016,vy:(Math.random()-.5)*.00016,r:.7+Math.random()*1.4}));
+  const resize=()=>{dpr=Math.min(2,devicePixelRatio||1);w=innerWidth;h=innerHeight;canvas.width=w*dpr;canvas.height=h*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)};
+  const move=e=>{mouse.x=e.clientX;mouse.y=e.clientY;document.body.style.setProperty('--mx',e.clientX+'px');document.body.style.setProperty('--my',e.clientY+'px')};
+  const frame=()=>{
+    ctx.clearRect(0,0,w,h);
+    for(const p of particles){
+      p.x+=p.vx;p.y+=p.vy;if(p.x<-.02)p.x=1.02;if(p.x>1.02)p.x=-.02;if(p.y<-.02)p.y=1.02;if(p.y>1.02)p.y=-.02;
+      const x=p.x*w,y=p.y*h,dx=x-mouse.x,dy=y-mouse.y,md=Math.hypot(dx,dy);
+      if(md<190&&md>1){p.x+=(dx/md)*.00009;p.y+=(dy/md)*.00009}
+      ctx.beginPath();ctx.arc(x,y,p.r,0,Math.PI*2);ctx.fillStyle='rgba(137,151,255,.34)';ctx.fill();
+    }
+    for(let i=0;i<particles.length;i++)for(let j=i+1;j<particles.length;j++){
+      const a=particles[i],b=particles[j],ax=a.x*w,ay=a.y*h,bx=b.x*w,by=b.y*h,d=Math.hypot(ax-bx,ay-by);
+      if(d<125){ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(bx,by);ctx.strokeStyle=`rgba(110,130,230,${(1-d/125)*.09})`;ctx.lineWidth=.7;ctx.stroke()}
+    }
+    raf=requestAnimationFrame(frame);
+  };
+  resize();addEventListener('resize',resize,{passive:true});addEventListener('pointermove',move,{passive:true});raf=requestAnimationFrame(frame);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(raf)}else raf=requestAnimationFrame(frame)});
+}
+function runBootSequence(){
+  const overlay=$('#bootOverlay'),label=$('#bootStatus');if(!overlay)return;
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){overlay.remove();return}
+  const messages=['Connecting to live values…','Indexing tradable cosmetics…','Calibrating demand engine…','Interface ready — syncing sources…'];
+  let i=0;const timer=setInterval(()=>{i=Math.min(i+1,messages.length-1);if(label)label.textContent=messages[i];if(i===messages.length-1)clearInterval(timer)},290);
+  setTimeout(()=>overlay.classList.add('done'),1450);
+  setTimeout(()=>overlay.remove(),2100);
+}
+
+document.addEventListener('keydown',e=>{
+  const tag=document.activeElement?.tagName;
+  if(e.key==='/'&&!['INPUT','TEXTAREA','SELECT'].includes(tag)){e.preventDefault();$('#search').focus()}
+  if(e.key==='Escape'&&document.activeElement===$('#search')){$('#search').value='';$('#clearSearch').classList.remove('visible');renderItems();$('#search').blur()}
+});
+initAmbientFX();runBootSequence();setSide('a');load();
 setInterval(()=>{if(!customSheetData)loadSheetData({quiet:true,allowLocalFallback:false})},SHEET_REFRESH_MS);
+
 </script>
 </body>
 </html>
